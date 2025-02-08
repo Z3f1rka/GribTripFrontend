@@ -10,8 +10,8 @@ const formErrors = ref({})
 const submitHandler = async (data) => {
   const API = import.meta.env.VITE_API_URL
   try {
-    const response = await axios.post(API + 'auth/register', data)
-
+    console.log(data)
+    const response = await axios.post(API + 'auth/login', data)
     if (response.data.error) {
       formErrors.value = response.data.error
     } else {
@@ -41,19 +41,17 @@ const submitHandler = async (data) => {
         @submit="submitHandler"
         :actions="false"
       >
-        <h1 class="text-4xl font-bold mb-12 mt-2">Регистрация!</h1>
-        <div class="mb-5">
-          <FormKit
-            type="text"
-            name="name"
-            label="Имя"
-            placeholder="Имя"
-            validation="required"
-            label-class="text-lg"
-            input-class="text-lg py-2 px-4 w-full"
-            :validation-messages="{ required: 'Пожалуйста, введите ваше имя.' }"
-          />
-        </div>
+        <h1 class="text-4xl font-bold mb-12 mt-2">Вход</h1>
+        <FormKit
+          type="text"
+          name="name"
+          label="Имя"
+          placeholder="Имя"
+          validation="required"
+          label-class="text-lg"
+          input-class="text-lg py-2 px-4 w-full"
+          :validation-messages="{ required: 'Пожалуйста, введите ваше имя.' }"
+        />
         <FormKit
           type="email"
           name="email"
@@ -68,40 +66,22 @@ const submitHandler = async (data) => {
             email: 'Пожалуйста, введите корректный email адрес.',
           }"
         />
-        <div class="double">
-          <FormKit
-            type="password"
-            name="password"
-            label="Пароль"
-            validation="required|length:6|matches:/[a-zA-Z-Z]/"
-            :validation-messages="{
-              required: 'Пожалуйста, введите пароль.',
-              length: 'Пароль должен содержать не менее 6 символов.',
-              matches: 'Пароль должен содержать хотя бы одну букву или цифру.',
-            }"
-            placeholder="Пароль"
-            help="Введите пароль"
-            label-class="text-lg"
-            input-class="text-lg py-2 px-4 w-full"
-          />
-          <FormKit
-            type="password"
-            name="password_confirm"
-            label="Подтвердите пароль"
-            placeholder="Подтвердите пароль"
-            validation="required|confirm"
-            :validation-messages="{
-              required: 'Пожалуйста, подтвердите пароль.',
-              confirm: 'Пароли не совпадают.',
-            }"
-            help="Подтвердите пароль"
-            label-class="text-lg"
-            input-class="text-lg py-2 px-4 w-full"
-          />
-        </div>
-        <div class="mt-5 text-left">
-          <FormKit type="submit">Продолжить ></FormKit>
-        </div>
+        <FormKit
+          type="password"
+          name="password"
+          label="Пароль"
+          validation="required|length:6|matches:/[a-zA-Z-Z]/"
+          :validation-messages="{
+            required: 'Пожалуйста, введите пароль.',
+            length: 'Пароль должен содержать не менее 6 символов.',
+            matches: 'Пароль должен содержать хотя бы одну букву или цифру.',
+          }"
+          placeholder="Пароль"
+          help="Введите пароль"
+          label-class="text-lg"
+          input-class="text-lg py-2 px-4 w-full"
+        />
+        <FormKit type="submit">Продолжить ></FormKit>
       </FormKit>
       <!-- Вывод общей ошибки -->
       <div v-if="formErrors.general" class="text-red-500 mb-4">{{ formErrors.general }}</div>
