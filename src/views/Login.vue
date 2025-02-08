@@ -3,6 +3,7 @@ import { FormKit } from '@formkit/vue'
 import axios from 'axios'
 import { ref } from 'vue'
 import router from '../router'
+import { submit } from '@formkit/icons'
 
 const submitted = ref(false)
 const formErrors = ref({})
@@ -22,9 +23,7 @@ const submitHandler = async (data) => {
       router.push('/')
     }
   } catch (error) {
-    console.error('Ошибка при регистрации:', error)
-    // TODO: дописать обработку ошибок
-    formErrors.value = { general: 'Ошибка при регистрации. Попробуйте позже.' }
+    formErrors.value = { general: error.response.data.detail }
   }
 }
 </script>
@@ -40,18 +39,9 @@ const submitHandler = async (data) => {
         submit-label="Register"
         @submit="submitHandler"
         :actions="false"
+        incomplete-message="Введите данные"
       >
         <h1 class="text-4xl font-bold mb-12 mt-2">Вход</h1>
-        <FormKit
-          type="text"
-          name="name"
-          label="Имя"
-          placeholder="Имя"
-          validation="required"
-          label-class="text-lg"
-          input-class="text-lg py-2 px-4 w-full"
-          :validation-messages="{ required: 'Пожалуйста, введите ваше имя.' }"
-        />
         <FormKit
           type="email"
           name="email"

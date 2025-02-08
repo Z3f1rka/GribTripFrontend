@@ -40,6 +40,7 @@ const submitHandler = async (data) => {
         submit-label="Register"
         @submit="submitHandler"
         :actions="false"
+        incomplete-message="Введите данные"
       >
         <h1 class="text-4xl font-bold mb-12 mt-2">Регистрация!</h1>
         <div class="mb-5">
