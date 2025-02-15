@@ -107,21 +107,22 @@ let user = {
       <div class="absolute top-0 left-0 w-full">
         <Header :user="user" />
         <div class="m-2 mt-25 mx-3">
-          <h1 class="ml-2" style="color: #fcf3e7; font-size: 170px">Ваш путь начинается здесь</h1>
-          <h2 class="ml-5 mt-5" style="color: #fcf3e7; font-size: 110px">
+          <h1 class="ml-2" style="color: #fcf3e7; font-size: 2.5cm">Ваш путь начинается здесь</h1>
+          <h2 class="ml-5 mt-5" style="color: #fcf3e7; font-size: 1cm">
             создавай и иследуй новые маршруты вместе с GripTrip!
           </h2>
-          <div class="flex justify-center mt-50">
+          <div class="flex justify-center mt-40">
             <div class="relative w-1/2">
               <input
                 placeholder="Поиск"
                 v-model="state.search"
-                class="h-30 text-5xl w-full rounded-lg bg-zinc-100 py-2 pl-10 pr-4 focus:outline-none"
+                style="font-size: 250%"
+                class="w-full rounded-lg bg-zinc-100 py-2 pl-10 pr-4 focus:outline-none"
               />
               <div
                 class="absolute inset-y-0 right-8 flex items-center pl-3 pointer-events-none justify-center"
               >
-                <img src="/public/search.png" alt="Поиск" class="h-13 w-13 text-gray-400" />
+                <img src="/public/search.png" alt="Поиск" class="h-1/2 text-gray-400" />
               </div>
             </div>
           </div>

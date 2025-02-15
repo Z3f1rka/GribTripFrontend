@@ -22,7 +22,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="fixed w-full bg-gradient-to-b"
+    class="fixed w-full bg-gradient-to-b z-999"
     :style="{
       '--gradient-color-start': '#202C3D',
       '--gradient-color-end': '#222E3F',
