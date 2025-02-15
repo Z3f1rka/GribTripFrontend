@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import L from 'leaflet'
+import Routing from ''
 
 const mapContainer = ref()
 const map = ref()
@@ -26,6 +27,9 @@ onMounted(() => {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map.value)
+    L.Routing.control({
+    waypoints: [L.latLng(54.319732, 48.4058184), L.latLng(54.3089, 48.3969)],
+  }).addTo(map.value)
   })
 })
 </script>
