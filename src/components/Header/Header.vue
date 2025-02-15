@@ -21,38 +21,56 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="flex">
+  <div
+    class="fixed w-full bg-gradient-to-b"
+    :style="{
+      '--gradient-color-start': '#202C3D',
+      '--gradient-color-end': '#222E3F',
+      background:
+        'linear-gradient(to bottom, var(--gradient-color-start), var(--gradient-color-end))',
+    }"
+  >
+    <div class="flex static">
       <header class="bg-DarkBlue inline-flex justify-between pl-8 select-none">
         <div class="py-2 inline-flex items-center">
           <img src="/icon.svg" class="w-38 h-20 cursor-pointer" />
         </div>
-        <div class="inline-flex">
+      </header>
+      <div
+        class="absolute modal"
+        style="right: 0; background-color: #fffaf4"
+        :class="{ EnterDropRight: isOpen, LeaveDropRight: !isOpen }"
+      >
+        <div
+          class="inline-flex items-center pr-3 mt-5 modal w-80 place-content-end select-none"
+          v-if="clean && Active"
+        >
           <div
-            class="inline-flex DropDown items-center pl-1 pr-5 cursor-pointer modal"
+            class="w-8 h-8 p-2 justify-center hover:bg-gray-200 rounded-full cursor-pointer"
             @click="((isOpen = !isOpen), (Active = true))"
-            v-if="clean"
           >
-            <img src="/arrow.svg" class="w-4 mx-3" />
-            <img src="/avatar.jfif" class="w-12 rounded-full" />
+            <img src="/arrow1.svg" class="w-4 h-4" />
           </div>
         </div>
-      </header>
+        <Dropdown
+          class="modal"
+          v-if="Active"
+          :username="data1.user.username"
+          :email="data1.user.email"
+          :img="data1.user.img"
+        />
+      </div>
+      <div class="inline-flex">
+        <div
+          class="inline-flex DropDown items-center pl-1 pr-5 cursor-pointer select-none modal"
+          @click="((isOpen = !isOpen), (Active = true))"
+          v-if="clean"
+        >
+          <img src="/arrow.svg" class="w-4 mx-3" />
+          <img src="/avatar.jfif" class="w-12 rounded-full" />
+        </div>
+      </div>
     </div>
-    <div class="m-2 mx-3 absolute">
-      <h1 class="ml-2" style="color: #fcf3e7">Ваш путь начинается здесь</h1>
-      <h2 class="ml-5 w-1/2 mt-5" style="color: #fcf3e7">
-        создавай и иследуй новые маршруты вместе с GripTrip!
-      </h2>
-    </div>
-    <Dropdown
-      class="modal"
-      v-if="Active"
-      :class="{ EnterDropRight: isOpen, LeaveDropRight: !isOpen }"
-      :username="data1.user.username"
-      :email="data1.user.email"
-      :img="data1.user.img"
-    />
   </div>
 </template>
 <style scoped>

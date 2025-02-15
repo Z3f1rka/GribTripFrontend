@@ -7,7 +7,7 @@ let data = defineProps({
 </script>
 <template>
   <div
-    class="absolute right-0 z-10 w-80 shadow-2xl origin-top-right select-none focus:outline-none"
+    class="absolute right-0 z-10 w-80 origin-top-right select-none focus:outline-none"
     role="menu"
     aria-orientation="vertical"
     aria-labelledby="menu-button"
@@ -17,7 +17,7 @@ let data = defineProps({
     <div class="py-1" role="none">
       <a
         href="#"
-        class="px-3 pt-8 pb-2 select-none flex justify-center cursor-default"
+        class="px-3 pt-2 pb-2 select-none flex justify-center cursor-default"
         role="menuitem"
         tabindex="-1"
         id="menu-item-0"
