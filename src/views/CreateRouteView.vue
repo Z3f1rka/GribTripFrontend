@@ -25,23 +25,15 @@ onMounted(() => {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map.value)
-    var marker = L.marker([54.319732, 48.4058184]).addTo(map.value)
     L.Routing.control({
-    waypoints: [
-        L.latLng(57.74, 11.94),
-        L.latLng(57.6792, 11.949)
-    ],
-    routeWhileDragging: true,
-    router: L.Routing.graphHopper()
-}).addTo(map.value);
+      waypoints: [L.latLng(57.74, 11.94), L.latLng(57.6792, 11.949)],
+    }).addTo(map.value)
   })
 })
 </script>
 <template>
   <div class="grid grid-cols-5">
-  <div class="col-span-2">
-
-  </div>
+    <div class="col-span-2"></div>
     <div class="w-full h-screen col-span-3">
       <div ref="mapContainer" style="width: 100%; height: 100%"></div>
     </div>
