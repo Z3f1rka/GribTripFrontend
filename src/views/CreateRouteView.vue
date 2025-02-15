@@ -7,20 +7,26 @@ const map = ref()
 const userLat = ref(0)
 const userLon = ref(0)
 
-
 onMounted(() => {
-  map.value = L.map(mapContainer.value).setView([51.505, -0.09], 13)
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map.value)
-
-  if (navigator.geolocation){
-    navigator.geolocation.watchPosition((position) =>{
-        userLat.value = position.coords.latitude
-        userLon.value = position.coords.longitude
-    })
-  }
+  const promise = new Promise((resolve, reject) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        resolve({ lat: position.coords.latitude, lon: position.coords.longitude })
+      })
+    } else {
+      reject({ lat: 0, lon: 0 })
+    }
+  })
+  promise.then((result) => {
+    userLat.value = result.lat
+    userLon.value = result.lon
+    console.log(userLat.value, userLon.value)
+    map.value = L.map(mapContainer.value).setView([userLat.value, userLon.value], 13)
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map.value)
+  })
 })
 </script>
 <template>
