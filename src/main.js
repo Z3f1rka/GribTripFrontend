@@ -1,4 +1,5 @@
 import './assets/index.css'
+import '@formkit/themes/genesis'
 
 import { createApp } from 'vue'
 import App from './App.vue'

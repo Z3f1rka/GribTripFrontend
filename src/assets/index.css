@@ -1,6 +1,7 @@
-@import 'tailwindcss';
-@import '@formkit/themes/genesis';
-header {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+  header {
   top: 0;
   z-index: 999;
   width: 100%;
