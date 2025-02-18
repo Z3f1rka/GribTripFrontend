@@ -48,7 +48,7 @@ onMounted(() => {
 <template>
   <div class="min-h-screen flex flex-col">
     <div class="relative h-screen">
-      <img src="/public/background3.png" class="w-full h-full object-cover blur-bgimage" />
+      <img src="/background3.png" class="w-full h-full object-cover blur-bgimage" />
       <div class="absolute top-0 left-0 w-full">
         <Header class="nav" :scroll="scroll" :user="user" />
         <div style="margin-top: max(55px, 5vw); margin-left: 0.3vw; margin-right: 0.1vw">
@@ -71,7 +71,7 @@ onMounted(() => {
                 style="right: 1.3vw"
               >
                 <img
-                  src="/public/search.png"
+                  src="/search.png"
                   alt="Поиск"
                   class="text-gray-400"
                   style="width: 3vw; height: 3vw"
