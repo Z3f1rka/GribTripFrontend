@@ -29,9 +29,11 @@ const submitHandler = async (data) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center h-screen w-screen">
-    <div class="w-1/2"><img src="/public/image.png" class="h-full object-cover w-full" /></div>
-    <div class="flex-grow ml-20">
+  <div class="flex items-center justify-center h-screen w-screen min-h-screen">
+    <div class="w-1/2">
+      <img src="/image.png" class="object-cover w-full" style="height: 100vh" />
+    </div>
+    <div class="flex-grow" style="margin-left: 6vw">
       <FormKit
         type="form"
         id="registration-example"
@@ -41,7 +43,7 @@ const submitHandler = async (data) => {
         :actions="false"
         incomplete-message="Введите данные"
       >
-        <h1 class="text-4xl font-bold mb-12 mt-2">Вход</h1>
+        <h1 class="font-bold" style="font-size: 3.2vw; margin-bottom: 2vw">Вход</h1>
         <FormKit
           type="email"
           name="email"
