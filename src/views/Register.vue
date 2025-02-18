@@ -23,7 +23,6 @@ const submitHandler = async (data) => {
     }
   } catch (error) {
     console.error('Ошибка при регистрации:', error)
-    // TODO: дописать обработку ошибок
     formErrors.value = { general: 'Ошибка при регистрации. Попробуйте позже.' }
   }
 }
@@ -31,7 +30,9 @@ const submitHandler = async (data) => {
 
 <template>
   <div class="flex items-center justify-center h-screen w-screen">
-    <div class="w-1/2"><img src="/public/image.png" class="h-full object-cover w-full" /></div>
+    <div style="width: 50vw">
+      <img src="/image.png" class="object-cover w-full" style="height: 100vh" />
+    </div>
     <div class="flex-grow ml-20">
       <FormKit
         type="form"
@@ -42,7 +43,7 @@ const submitHandler = async (data) => {
         :actions="false"
         incomplete-message="Введите данные"
       >
-        <h1 class="text-4xl font-bold mb-12 mt-2">Регистрация!</h1>
+        <h1 class="font-bold" style="font-size: 3.2vw; margin-bottom: 2vw">Регистрация!</h1>
         <div class="mb-5">
           <FormKit
             type="text"
@@ -104,7 +105,6 @@ const submitHandler = async (data) => {
           <FormKit type="submit">Продолжить ></FormKit>
         </div>
       </FormKit>
-      <!-- Вывод общей ошибки -->
       <div v-if="formErrors.general" class="text-red-500 mb-4">{{ formErrors.general }}</div>
       <div v-if="submitted">
         <h2 class="text-xl text-green-500">Регистрация прошла успешно!</h2>
