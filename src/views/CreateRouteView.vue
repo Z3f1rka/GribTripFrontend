@@ -6,6 +6,8 @@ const map = ref()
 const userLat = ref(0)
 const userLon = ref(0)
 
+
+
 onMounted(() => {
   const promise = new Promise((resolve, reject) => {
     if (navigator.geolocation) {
@@ -27,13 +29,32 @@ onMounted(() => {
     }).addTo(map.value)
     L.Routing.control({
       waypoints: [L.latLng(57.74, 11.94), L.latLng(57.6792, 11.949)],
+      language: 'ru',
+      draggableWaypoints: true,
+      addWaypoints: false,
     }).addTo(map.value)
   })
 })
+
+var points = ref([])
+
+function AddPoint(){
+  points.value.push(L.latLng(userLat.value, userLon.value))
+  L.Routing.control({
+      waypoints: points.value,
+      language: 'ru',
+      draggableWaypoints: true,
+      addWaypoints: false,
+    }).addTo(map.value)
+  console.log("+")
+}
+
 </script>
 <template>
   <div class="grid grid-cols-5">
-    <div class="col-span-2"></div>
+    <div class="col-span-2">
+      <button @click="AddPoint"> + Точка</button>
+    </div>
     <div class="w-full h-screen col-span-3">
       <div ref="mapContainer" style="width: 100%; height: 100%"></div>
     </div>

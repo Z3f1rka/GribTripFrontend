@@ -11,15 +11,15 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "axios": "^1.7.9",
-    "leaflet": "^1.9.4",
-    "leaflet-routing-machine": "^3.2.12",
     "@formkit/i18n": "^1.6.9",
     "@formkit/icons": "^1.6.9",
     "@formkit/themes": "^1.6.9",
     "@formkit/vue": "^1.6.9",
     "axios": "^1.7.9",
     "formkit": "^1.6.9",
+    "is-number": "^7.0.0",
+    "leaflet": "^1.9.4",
+    "leaflet-routing-machine": "^3.2.12",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
