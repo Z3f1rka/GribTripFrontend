@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import Dropdown from './Dropdown.vue'
 
 let data1 = defineProps({
+  scroll: Boolean,
   user: Object,
   cleanmode: Boolean,
 })
@@ -23,17 +24,24 @@ onMounted(() => {
 <template>
   <div
     class="fixed w-full bg-gradient-to-b z-999"
-    :style="{
-      '--gradient-color-start': '#202C3D',
-      '--gradient-color-end': '#222E3F',
-      background:
-        'linear-gradient(to bottom, var(--gradient-color-start), var(--gradient-color-end))',
-    }"
+    :style="
+      data1.scroll
+        ? { background: 'rgba(0, 0, 0, 0)' }
+        : {
+            '--gradient-color-start': '#202C3D',
+            '--gradient-color-end': '#222E3F',
+            background:
+              'linear-gradient(to bottom, var(--gradient-color-start), var(--gradient-color-end))',
+          }
+    "
   >
     <div class="flex static">
-      <header class="bg-DarkBlue inline-flex justify-between pl-8 select-none">
-        <div class="py-2 inline-flex items-center">
-          <img src="/icon.svg" class="w-38 h-20 cursor-pointer" />
+      <header
+        class="inline-flex justify-between select-none"
+        style="padding-left: 2.5vw; padding-top: 1vw; padding-bottom: 1vw"
+      >
+        <div class="inline-flex items-center" style="padding-top: 1vh; padding-bottom: 1vh">
+          <img src="/icon.svg" class="cursor-pointer" style="height: 3vw" />
         </div>
       </header>
       <div
@@ -42,14 +50,16 @@ onMounted(() => {
         :class="{ EnterDropRight: isOpen, LeaveDropRight: !isOpen }"
       >
         <div
-          class="inline-flex items-center pr-3 mt-5 modal w-80 place-content-end select-none"
+          class="inline-flex items-center modal place-content-end select-none"
+          style="padding-right: 1vw; margin-top: 1vw; width: 21vw"
           v-if="clean && Active"
         >
           <div
-            class="w-8 h-8 p-2 justify-center hover:bg-gray-200 rounded-full cursor-pointer"
+            class="justify-center hover:bg-gray-200 rounded-full cursor-pointer"
+            style="padding: 1.4vw"
             @click="((isOpen = !isOpen), (Active = true))"
           >
-            <img src="/arrow1.svg" class="w-4 h-4" />
+            <img src="/arrow1.svg" style="width: 1.2vw; height: 1.2vw" />
           </div>
         </div>
         <Dropdown
@@ -62,18 +72,22 @@ onMounted(() => {
       </div>
       <div class="inline-flex">
         <div
-          class="inline-flex DropDown items-center pl-1 pr-5 cursor-pointer select-none modal"
+          class="inline-flex DropDown items-center cursor-pointer select-none modal"
+          style="padding-right: 1.5vw"
           @click="((isOpen = !isOpen), (Active = true))"
           v-if="clean"
         >
-          <img src="/arrow.svg" class="w-4 mx-3" />
-          <img src="/avatar.jfif" class="w-12 rounded-full" />
+          <img src="/arrow.svg" style="width: 1.2vw; margin-right: 0.7vw; margin-left: 1vw" />
+          <img src="/avatar.jfif" class="rounded-full" style="width: 3.5vw" />
         </div>
       </div>
     </div>
   </div>
 </template>
 <style scoped>
+.scrolled {
+  background-color: pink;
+}
 .search-box {
   width: fit-content;
   height: fit-content;

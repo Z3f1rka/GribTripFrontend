@@ -1,84 +1,19 @@
 <script setup>
-import { computed, ref, reactive, watch } from 'vue'
+import { computed, ref, reactive, watch, onMounted } from 'vue'
 import Header from '@/components/Header/Header.vue'
+import Card from '@/components/Main/Card.vue'
 
 const gradientStartColor = computed(() => '#080E1A')
-const gradientEndColor = computed(() => '#527480')
 
 const state = reactive({
   search: '',
-  array: [
-    {
-      id: 1,
-      name: 'Alice Wonderland',
-      email: 'alice@example.com',
-      phone: '555-123-4567',
-      city: 'Wonderland',
-      hobbies: ['reading', 'painting', 'gardening'],
-    },
-    {
-      id: 2,
-      name: 'Bob The Builder',
-      email: 'bob@example.com',
-      phone: '555-987-6543',
-      city: 'Constructionville',
-      hobbies: ['building', 'engineering', 'carpentry'],
-    },
-    {
-      id: 3,
-      name: 'Charlie Chaplin',
-      email: 'charlie@example.com',
-      phone: '555-111-2222',
-      city: 'Hollywood',
-      hobbies: ['acting', 'filmmaking', 'comedy'],
-    },
-    {
-      id: 4,
-      name: 'Diana Prince',
-      email: 'diana@example.com',
-      phone: '555-333-4444',
-      city: 'Themyscira',
-      hobbies: ['fighting', 'archery', 'leadership'],
-    },
-    {
-      id: 5,
-      name: 'Eve Gardener',
-      email: 'eve@example.com',
-      phone: '555-555-6666',
-      city: 'Eden',
-      hobbies: ['gardening', 'cooking', 'botany'],
-    },
-    {
-      id: 6,
-      name: 'Frankenstein Monster',
-      email: 'frank@example.com',
-      phone: '555-777-8888',
-      city: 'Geneva',
-      hobbies: ['walking', 'electricity', 'poetry'],
-    },
-    {
-      id: 7,
-      name: 'Grace Hopper',
-      email: 'grace@example.com',
-      phone: '555-999-0000',
-      city: 'Arlington',
-      hobbies: ['programming', 'mathematics', 'sailing'],
-    },
-    {
-      id: 8,
-      name: 'Harry Potter',
-      email: 'harry@example.com',
-      phone: '555-101-2020',
-      city: 'London',
-      hobbies: ['magic', 'quidditch', 'adventure'],
-    },
-  ],
+  array: [],
 })
 function mySort(searchKey) {
   let matchedKeys = [],
     notMatchedKeys = []
   for (let i = 0; i < state.array.length; i++) {
-    if (state.array[i]['name'].toLowerCase().includes(searchKey.toLowerCase())) {
+    if (state.array[i]['title'].toLowerCase().includes(searchKey.toLowerCase())) {
       matchedKeys.push(state.array[i])
     } else {
       notMatchedKeys.push(state.array[i])
@@ -92,12 +27,22 @@ watch(
     state.array = mySort(state.search)
   },
 )
-
 let user = {
   username: 'User',
   email: '111@11.ru',
   img: '/avatar.jfif',
 }
+const scroll = ref(true)
+onMounted(() => {
+  window.onscroll = function () {
+    let currentScrollPos = window.scrollY
+    if (200 < currentScrollPos) {
+      scroll.value = false
+    } else {
+      scroll.value = true
+    }
+  }
+})
 </script>
 
 <template>
@@ -105,24 +50,32 @@ let user = {
     <div class="relative h-screen">
       <img src="/public/background3.png" class="w-full h-full object-cover blur-bgimage" />
       <div class="absolute top-0 left-0 w-full">
-        <Header :user="user" />
-        <div class="m-2 mt-25 mx-3">
-          <h1 class="ml-2" style="color: #fcf3e7; font-size: 2.5cm">Ваш путь начинается здесь</h1>
-          <h2 class="ml-5 mt-5" style="color: #fcf3e7; font-size: 1cm">
-            создавай и иследуй новые маршруты вместе с GripTrip!
+        <Header class="nav" :scroll="scroll" :user="user" />
+        <div style="margin-top: max(55px, 5vw); margin-left: 0.3vw; margin-right: 0.1vw">
+          <h1 class="main" style="color: #fcf3e7; font-size: 6vw; margin-left: 0.5vw">
+            Ваш путь начинается здесь
+          </h1>
+          <h2 style="color: #fcf3e7; font-size: 3vw; margin-left: 1vw">
+            Cоздавай и иследуй новые маршруты вместе с GripTrip!
           </h2>
-          <div class="flex justify-center mt-40">
-            <div class="relative w-1/2">
+          <div class="flex justify-center" style="margin-top: 14vw">
+            <div class="relative" style="width: 50vw">
               <input
                 placeholder="Поиск"
                 v-model="state.search"
-                style="font-size: 250%"
-                class="w-full rounded-lg bg-zinc-100 py-2 pl-10 pr-4 focus:outline-none"
+                style="font-size: 2.5vw; padding-left: 2vw; padding-top: 1vw; padding-bottom: 1vw"
+                class="w-full rounded-lg bg-zinc-100 focus:outline-none"
               />
               <div
-                class="absolute inset-y-0 right-8 flex items-center pl-3 pointer-events-none justify-center"
+                class="absolute inset-y-0 flex items-center pointer-events-none justify-center"
+                style="right: 1.3vw"
               >
-                <img src="/public/search.png" alt="Поиск" class="h-1/2 text-gray-400" />
+                <img
+                  src="/public/search.png"
+                  alt="Поиск"
+                  class="text-gray-400"
+                  style="width: 3vw; height: 3vw"
+                />
               </div>
             </div>
           </div>
@@ -138,16 +91,39 @@ let user = {
           'linear-gradient(to bottom, var(--gradient-color-start), var(--gradient-color-end))',
       }"
     >
-      <div class="text-white p-4">
+      <div class="text-white inline-grid grid-cols-2" style="margin-right: 1vw; margin-left: 0.3vw">
         <h1 v-for="item in state.array" :key="item.id">
-          {{ item.name }}
+          <Card :card="item"></Card>
         </h1>
+      </div>
+      <div class="text-center">
+        <p style="font-size: 3vw; color: #fcf3e7; margin-top: 3vw">Маршрутов больше нет</p>
+        <a href="#"
+          ><div
+            class="inline-flex items-center"
+            style="
+              padding-left: 2vw;
+              padding-right: 2vw;
+              padding-top: 0.8vw;
+              padding-bottom: 0.8vw;
+              font-size: 2.5vw;
+              background-color: #c4d9d2;
+              margin-bottom: 5vw;
+              margin-top: 2vw;
+            "
+          >
+            Создать маршрут
+          </div></a
+        >
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.pink {
+  background-color: pink;
+}
 .blur-bgimage {
   overflow: hidden;
   margin: 0;
@@ -172,7 +148,7 @@ let user = {
   -o-transition: all 2s linear;
 }
 h1 {
-  font-size: calc(36px + (16 + 16 * 0.7) * ((110vw - 320px) / 1280));
+  font-size: calc(12px + (16 + 16 * 0.7) * ((110vw - 320px) / 1280));
 }
 h2 {
   font-size: calc(12px + (16 + 16 * 0.7) * ((110vw - 320px) / 1280));
@@ -195,5 +171,8 @@ p {
 h6 {
   font-size: calc((14 + 4 * 0.7) * ((110vw - 320px) / 1280) + 6px);
   align-content: center;
+}
+.header_hidden {
+  background-color: rgba(0, 0, 0, 0);
 }
 </style>
