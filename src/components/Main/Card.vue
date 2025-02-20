@@ -17,7 +17,7 @@ const handleMouseLeave = () => {
 <template>
   <div
     style="width: 45vw; height: 25vw; margin-left: 2vw; margin-right: 2vw; margin-top: 5vw"
-    class="relative justify-center border-1 cursor-pointer overflow-hidden"
+    class="relative justify-center border-1 cursor-pointer overflow-hidden z-0"
     @mouseover="handleMouseOver"
     @mouseleave="handleMouseLeave"
   >

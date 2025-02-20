@@ -2,7 +2,6 @@
 import { ref, onMounted, watch } from 'vue'
 import Dropdown from './Dropdown.vue'
 import { auth_get } from '@/request'
-import { tr } from '@formkit/i18n'
 
 let data1 = defineProps({
   scroll: Boolean,
@@ -44,7 +43,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="fixed w-full bg-gradient-to-b z-999"
+    class="fixed w-full bg-gradient-to-b z-50"
     :style="
       data1.scroll
         ? { background: 'rgba(0, 0, 0, 0)' }
@@ -91,6 +90,7 @@ onMounted(() => {
           :username="user.username"
           :email="user.email"
           :img="user.avatar"
+          :role="user.role"
         />
       </div>
       <div class="inline-flex" v-if="auth">
