@@ -12,6 +12,11 @@ let selfcards = reactive({
   search: '',
   array: [],
 })
+/*
+if (localStorage.getItem('token') == 'null') {
+  router.push({ path: '/login' })
+}
+  */
 function mySort(searchKey) {
   let matchedKeys = [],
     notMatchedKeys = []
@@ -43,24 +48,44 @@ f()
 watch(
   () => user.value,
   (newValue) => {
-    console.log(newValue)
     auth.value = true
   },
 )
+
 /*
-async function f1() {
+const data = ref(null)
+const error = ref(null)
+const loading = ref(false)
+
+const fetchData = async () => {
+  loading.value = false
+  error.value = null
+  const fetchDataFromEndpoint = (endpoint) => {
+    return auth_get(endpoint)
+  }
+
   try {
-    const data = await auth_get('')
-    selfcards.value = data
-  } catch (error) {
-    console.error('Ошибка при загрузке данных пользователя:', error)
+    data.value = await fetchDataFromEndpoint(`routes/all_user_routes/${user.id}`)
+  } catch (err) {
+    console.error('Ошибка при запросе к первичному эндпоинту:', err)
+    error.value = `Ошибка с первичным эндпоинтом: ${err.message}`
+    try {
+      data.value = await fetchDataFromEndpoint(`routes/all_user_public_routes/${user.id}`)
+      error.value = null // Сбрасываем ошибку, если вторичный эндпоинт отработал успешно
+    } catch (err1) {
+      console.error('Ошибка при запросе к вторичному эндпоинту:', err1)
+      error.value = `Обе ошибки: ${err.message}, ${err1.message}`
+    }
+  } finally {
+    loading.value = true
   }
 }
 
-onMounted(async () => {
-  await f1()
+onMounted(() => {
+  fetchData()
 })
-  */
+
+*/
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
@@ -83,10 +108,10 @@ onMounted(async () => {
           style="width: 8vw; margin-bottom: 2vw"
         />
         <div style="font-size: 2vw">
-          {{ user ? user.username : 'Имя пользователя отсутствует' }}
+          {{ user == 'null' ? user.username : 'Имя пользователя отсутствует' }}
         </div>
         <div style="font-size: 1.5vw">
-          {{ user ? user.email : 'email пользователя отсутствует' }}
+          {{ user == 'null' ? user.email : 'email пользователя отсутствует' }}
         </div>
       </div>
       <div class="grid col-span-5">

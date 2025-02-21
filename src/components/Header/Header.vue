@@ -23,7 +23,6 @@ f()
 watch(
   () => user.value,
   (newValue) => {
-    console.log(newValue)
     auth.value = true
   },
 )
