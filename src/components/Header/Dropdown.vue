@@ -10,6 +10,7 @@ let data = defineProps({
   email: String,
   img: String,
   role: String,
+  id: String,
 })
 </script>
 <template>
@@ -60,20 +61,22 @@ let data = defineProps({
       >
       <hr class="DropDownHr" />
       <hr class="DropDownHr" />
-      <a
-        href="#"
-        class="block DropDownElement select-none"
-        style="padding-left: 1.15vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
-        role="menuitem"
-        tabindex="-1"
-        id="menu-item-0"
-        ><div class="inline-flex items-center">
-          <img
-            src="/profile-icon.png"
-            style="width: 0.8vw; height: 1.1vw; margin-right: 0.8vw"
-          />Профиль
-        </div>
-      </a>
+      <router-link :to="{ path: '/profile', query: { id: data.id } }">
+        <a
+          href="#"
+          class="block DropDownElement select-none"
+          style="padding-left: 1.15vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
+          role="menuitem"
+          tabindex="-1"
+          id="menu-item-0"
+          ><div class="inline-flex items-center">
+            <img
+              src="/profile-icon.png"
+              style="width: 0.8vw; height: 1.1vw; margin-right: 0.8vw"
+            />Профиль
+          </div>
+        </a></router-link
+      >
       <a
         v-if="!data.role == 'user'"
         href="#"
@@ -86,19 +89,19 @@ let data = defineProps({
           <img src="/moder.png" style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw" />Модерация
         </div></a
       >
-      <a
-        href="#"
-        class="block DropDownElement"
-        style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
-        role="menuitem"
-        tabindex="-1"
-        id="menu-item-1"
-        ><div class="inline-flex items-center">
-          <img
-            src="/location.png"
-            style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw"
-          />Маршруты
-        </div></a
+      <router-link :to="{ path: '/my_routes', query: { id: data.id } }">
+        <a
+          href="#"
+          class="block DropDownElement"
+          style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
+          role="menuitem"
+          tabindex="-1"
+          id="menu-item-1"
+          ><div class="inline-flex items-center">
+            <img src="/location.png" style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw" />Мои
+            маршруты
+          </div></a
+        ></router-link
       >
       <button
         @click="handleLogout"

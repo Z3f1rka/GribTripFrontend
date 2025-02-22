@@ -3,7 +3,9 @@ import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, reactive } from 'vue'
 import Card from '@/components/Main/Card.vue'
 import { auth_get } from '@/request'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+
+const id = useRoute()['query']['id']
 
 const router = useRouter()
 let user = ref(null)
@@ -12,89 +14,72 @@ let selfcards = reactive({
   search: '',
   array: [],
 })
-/*
-if (localStorage.getItem('token') == 'null') {
+
+if (localStorage.getItem('refresh_token') == null) {
   router.push({ path: '/login' })
+  alert('Войдите для просмотра профилей')
 }
-  */
-function mySort(searchKey) {
-  let matchedKeys = [],
-    notMatchedKeys = []
-  for (let i = 0; i < selfcards.array.length; i++) {
-    if (selfcards.array[i]['title'].toLowerCase().includes(searchKey.toLowerCase())) {
-      matchedKeys.push(selfcards.array[i])
-    } else {
-      notMatchedKeys.push(selfcards.array[i])
-    }
-  }
-  return matchedKeys.concat(notMatchedKeys)
-}
-watch(
-  () => selfcards.search,
-  () => {
-    selfcards.array = mySort(selfcards.search)
-  },
-)
 
 async function f() {
   try {
-    const data = await auth_get('auth/me')
+    const data = await auth_get(`auth/user?user_id=${id}`)
     user.value = data
-  } catch (error) {
-    router.push({ path: '/login' })
+    if (data == undefined) {
+      throw undefined
+    }
+  } catch (err) {
+    console.log(err)
+    router.push({ path: '/' })  
+    alert('Такого пользователя')
   }
 }
 f()
 watch(
   () => user.value,
-  (newValue) => {
+  () => {
     auth.value = true
   },
 )
 
-/*
-const data = ref(null)
-const error = ref(null)
 const loading = ref(false)
+const rulefive = ref(false)
 
 const fetchData = async () => {
   loading.value = false
-  error.value = null
-  const fetchDataFromEndpoint = (endpoint) => {
-    return auth_get(endpoint)
-  }
 
   try {
-    data.value = await fetchDataFromEndpoint(`routes/all_user_routes/${user.id}`)
+    selfcards.array = await auth_get(`routes/all_user_routes?user_id=${id}`)
+    if (selfcards.array == undefined) {
+      throw undefined
+    }
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
-    error.value = `Ошибка с первичным эндпоинтом: ${err.message}`
     try {
-      data.value = await fetchDataFromEndpoint(`routes/all_user_public_routes/${user.id}`)
-      error.value = null // Сбрасываем ошибку, если вторичный эндпоинт отработал успешно
+      selfcards.array = await auth_get(`routes/all_user_public_routes?user_id=${id}`)
+      if (selfcards.array == undefined) {
+        throw undefined
+      }
     } catch (err1) {
       console.error('Ошибка при запросе к вторичному эндпоинту:', err1)
-      error.value = `Обе ошибки: ${err.message}, ${err1.message}`
     }
   } finally {
     loading.value = true
+    if (selfcards.array.length >= 5) {
+      rulefive.value = true
+      selfcards.array = selfcards.array.slice(0, 5)
+    }
   }
 }
 
 onMounted(() => {
   fetchData()
 })
-
-*/
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
     <Header class="nav" :scroll="false" />
-    <div style="margin-top: 6vw" class="grid grid-rows-1 grid-cols-8">
-      <div
-        class="grid col-span-3 text-center content-center justify-center bg-gray-200"
-        style="padding-top: 6vw; padding-bottom: 3vw"
-      >
+    <div style="margin-top: 6vw" class="grid grid-cols-8">
+      <div class="col-span-3 text-center bg-gray-200" style="padding-top: 6vw; padding-bottom: 3vw">
         <img
           v-if="user && user.avatar"
           :src="user.avatar"
@@ -108,10 +93,10 @@ onMounted(() => {
           style="width: 8vw; margin-bottom: 2vw"
         />
         <div style="font-size: 2vw">
-          {{ user == 'null' ? user.username : 'Имя пользователя отсутствует' }}
+          {{ user ? user.username : 'Имя пользователя отсутствует' }}
         </div>
         <div style="font-size: 1.5vw">
-          {{ user == 'null' ? user.email : 'email пользователя отсутствует' }}
+          {{ user ? user.email : 'email пользователя отсутствует' }}
         </div>
       </div>
       <div class="grid col-span-5">
@@ -151,32 +136,30 @@ onMounted(() => {
               </div></router-link
             >
           </div>
-          <div v-if="selfcards.value" class="text-center" style="font-size: 1.4vw; margin-top: 1vw">
-            <div class="relative" style="width: 50vw">
-              <input
-                placeholder="Поиск"
-                v-model="selfcards.search"
-                style="font-size: 2.5vw; padding-left: 2vw; padding-top: 1vw; padding-bottom: 1vw"
-                class="w-full rounded-lg bg-zinc-100 focus:outline-none"
-              />
-              <div
-                class="absolute inset-y-0 flex items-center pointer-events-none justify-center"
-                style="right: 1.3vw"
-              >
-                <img
-                  src="/search.png"
-                  alt="Поиск"
-                  class="text-gray-400"
-                  style="width: 3vw; height: 3vw"
-                />
-              </div>
-            </div>
+          <div v-if="selfcards.array" class="text-center" style="font-size: 1.4vw; margin-top: 1vw">
             <div v-for="item in selfcards.array" :key="item.id">
               <Card :card="item"></Card>
             </div>
+            <div v-if="rulefive">
+              <router-link :to="{ path: '/my_routes', query: { id: id } }"
+                ><div
+                  class="items-center rounded-lg text-center"
+                  style="
+                    margin-left: 1vw;
+                    margin-right: 1vw;
+                    margin-top: 0.7vw;
+                    margin-bottom: 0.7vw;
+                    font-size: 1vw;
+                    background-color: #c4d9d2;
+                  "
+                >
+                  Все маршруты
+                </div>
+              </router-link>
+            </div>
           </div>
           <div
-            v-if="!selfcards.value"
+            v-if="!selfcards.array"
             class="text-center"
             style="font-size: 1.4vw; margin-top: 1vw"
           >

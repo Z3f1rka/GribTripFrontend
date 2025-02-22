@@ -3,6 +3,8 @@ import { computed, ref, reactive, watch, onMounted } from 'vue'
 import { auth_get } from '../request.js'
 import Header from '@/components/Header/Header.vue'
 import Card from '@/components/Main/Card.vue'
+import { useRouter, useRoute } from 'vue-router'
+const router = useRouter()
 
 const state = reactive({
   search: '',
@@ -13,7 +15,7 @@ const gradientStartColor = computed(() => '#080E1A')
 
 async function loadRoutes() {
   try {
-    const data = await auth_get('routes/all_routes')
+    const data = await auth_get('routes/all_public_routes')
     state.array = data
   } catch (error) {
     state.array = []
@@ -102,7 +104,9 @@ onMounted(async () => {
     >
       <div class="text-white inline-grid grid-cols-2" style="margin-right: 1vw; margin-left: 0.3vw">
         <h1 v-for="item in state.array" :key="item.id">
-          <Card :card="item"></Card>
+          <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+            <Card :card="item"></Card>
+          </router-link>
         </h1>
       </div>
       <div class="text-center">

@@ -30,11 +30,15 @@ export const auth_get = (url) => {
             const data = axios.get(API + url, {
               headers: { authorization: `Bearer ${token}` },
             })
-            data.then((response) => {
-              resp_data = response.data
-              console.log(resp_data)
-              resolve(resp_data)
-            })
+            data
+              .then((response) => {
+                resp_data = response.data
+                console.log(resp_data)
+                resolve(resp_data)
+              })
+              .catch((response) => {
+                resolve(undefined)
+              })
           }
         })
     })

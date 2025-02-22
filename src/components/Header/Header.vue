@@ -59,7 +59,7 @@ onMounted(() => {
         class="inline-flex justify-between select-none"
         style="padding-left: 2.5vw; padding-top: 1vw; padding-bottom: 1vw"
       >
-        <router-link :to="{ path: '/  ' }">
+        <router-link :to="{ path: '/' }">
           <div class="inline-flex items-center" style="padding-top: 1vh; padding-bottom: 1vh">
             <img src="/icon.svg" class="cursor-pointer" style="height: 3vw" />
           </div>
@@ -90,6 +90,7 @@ onMounted(() => {
           :email="user.email"
           :img="user.avatar"
           :role="user.role"
+          :id="user.id"
         />
       </div>
       <div class="inline-flex" v-if="auth">
