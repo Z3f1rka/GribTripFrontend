@@ -39,7 +39,7 @@ onMounted(() => {
     }).addTo(map.value)
     control.value = L.Routing.control({
       waypoints: [],
-      router: L.Routing.graphHopper('af8a38d3-55a2-41e2-961e-c64634d022ed', {
+      router: L.Routing.graphHopper(api_key, {
         urlParameters: { vehicle: 'foot', locale: 'ru' },
       }),
       language: 'ru',
