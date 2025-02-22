@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 import "/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js"
 import "/lrm-graphhopper-1.2.0.js"
@@ -15,6 +15,7 @@ var points = ref([])
 var count = 0
 const mainImage = ref(null)
 const imageUrl = ref(null);
+const loading = ref(false)
 
 
 onMounted(() => {
@@ -73,10 +74,17 @@ function AddPoint() {
   is_add.value = true
 }
 
-function AddImage(event) {
+async function AddImage(event) {
+  loading.value = false
   mainImage.value = event.target.files[0]
-  imageUrl.value = URL.createObjectURL(mainImage.value)
+  imageUrl.value = await URL.createObjectURL(mainImage.value)
 }
+watch(
+  () => imageUrl.value,
+  () => {
+    loading.value = true
+  }
+)
 
 function ReRoute() {
   points.value.sort((a, b) => parseFloat(a.position) - parseFloat(b.position))
@@ -146,9 +154,9 @@ function DeletePoint(id) {
     <div class="col-span-2 h-screen overflow-auto">
       <div class="border-2 bg-slate-100">
         <input>
-        <input type="file" @click="AddImage">
+        <input type="file" @change="AddImage">
         <textarea></textarea>
-        <img :src="imageUrl">
+        <img :src="imageUrl" v-if="loading">
       </div>
       <div v-for="point in points" :key="point.id" class="border-2">
         <div>
