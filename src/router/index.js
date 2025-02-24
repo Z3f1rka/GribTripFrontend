@@ -3,6 +3,11 @@ import HomeView from '../views/HomeView.vue'
 import CreateRouteView from '../views/CreateRouteView.vue'
 import Register from '../views/Register.vue'
 import Login from '@/views/Login.vue'
+import ProfileView from '@/views/ProfileView.vue'
+import HistoryView from '@/views/HistoryView.vue'
+import MyRoutesView from '@/views/MyRoutesView.vue'
+import CardView from '@/views/CardView.vue'
+import ModerView from '@/views/ModerView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +27,31 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+    },
+    {
+      path: '/histoty',
+      name: 'history',
+      component: HistoryView,
+    },
+    {
+      path: '/my_routes',
+      name: 'my_routes',
+      component: MyRoutesView,
+    },
+    {
+      path: '/card',
+      name: 'card',
+      component: CardView,
+    },
+    {
+      path: '/moder',
+      name: 'moder',
+      component: ModerView,
     },
   ],
 })

@@ -1,14 +1,27 @@
 <script setup>
 import { computed, ref, reactive, watch, onMounted } from 'vue'
+import { auth_get } from '../request.js'
 import Header from '@/components/Header/Header.vue'
 import Card from '@/components/Main/Card.vue'
-
-const gradientStartColor = computed(() => '#080E1A')
+import { useRouter, useRoute } from 'vue-router'
+const router = useRouter()
 
 const state = reactive({
   search: '',
   array: [],
 })
+
+const gradientStartColor = computed(() => '#080E1A')
+
+async function loadRoutes() {
+  try {
+    const data = await auth_get('routes/all_public_routes')
+    state.array = data
+  } catch (error) {
+    state.array = []
+  }
+}
+
 function mySort(searchKey) {
   let matchedKeys = [],
     notMatchedKeys = []
@@ -27,11 +40,6 @@ watch(
     state.array = mySort(state.search)
   },
 )
-let user = {
-  username: 'User',
-  email: '111@11.ru',
-  img: '/avatar.jfif',
-}
 const scroll = ref(true)
 onMounted(() => {
   window.onscroll = function () {
@@ -43,6 +51,9 @@ onMounted(() => {
     }
   }
 })
+onMounted(async () => {
+  await loadRoutes()
+})
 </script>
 
 <template>
@@ -50,7 +61,7 @@ onMounted(() => {
     <div class="relative h-screen">
       <img src="/background3.png" class="w-full h-full object-cover blur-bgimage" />
       <div class="absolute top-0 left-0 w-full">
-        <Header class="nav" :scroll="scroll" :user="user" />
+        <Header class="nav" :scroll="scroll" />
         <div style="margin-top: max(55px, 5vw); margin-left: 0.3vw; margin-right: 0.1vw">
           <h1 class="main" style="color: #fcf3e7; font-size: 6vw; margin-left: 0.5vw">
             Ваш путь начинается здесь
@@ -93,7 +104,9 @@ onMounted(() => {
     >
       <div class="text-white inline-grid grid-cols-2" style="margin-right: 1vw; margin-left: 0.3vw">
         <h1 v-for="item in state.array" :key="item.id">
-          <Card :card="item"></Card>
+          <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+            <Card :card="item"></Card>
+          </router-link>
         </h1>
       </div>
       <div class="text-center">

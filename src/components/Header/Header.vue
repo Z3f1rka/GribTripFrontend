@@ -1,12 +1,31 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Dropdown from './Dropdown.vue'
+import { auth_get } from '@/request'
 
 let data1 = defineProps({
   scroll: Boolean,
-  user: Object,
   cleanmode: Boolean,
 })
+
+let user = ref(null)
+let auth = ref(false)
+
+async function f() {
+  try {
+    const data = await auth_get('auth/me')
+    user.value = data
+  } catch (error) {
+    console.error('Ошибка при загрузке данных пользователя:', error)
+  }
+}
+f()
+watch(
+  () => user.value,
+  (newValue) => {
+    auth.value = true
+  },
+)
 
 const clean = ref(data1.cleanmode ? false : true)
 const Active = ref(false)
@@ -23,7 +42,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="fixed w-full bg-gradient-to-b z-999"
+    class="fixed w-full bg-gradient-to-b z-50"
     :style="
       data1.scroll
         ? { background: 'rgba(0, 0, 0, 0)' }
@@ -40,9 +59,11 @@ onMounted(() => {
         class="inline-flex justify-between select-none"
         style="padding-left: 2.5vw; padding-top: 1vw; padding-bottom: 1vw"
       >
-        <div class="inline-flex items-center" style="padding-top: 1vh; padding-bottom: 1vh">
-          <img src="/icon.svg" class="cursor-pointer" style="height: 3vw" />
-        </div>
+        <router-link :to="{ path: '/' }">
+          <div class="inline-flex items-center" style="padding-top: 1vh; padding-bottom: 1vh">
+            <img src="/icon.svg" class="cursor-pointer" style="height: 3vw" />
+          </div>
+        </router-link>
       </header>
       <div
         class="absolute modal"
@@ -65,12 +86,14 @@ onMounted(() => {
         <Dropdown
           class="modal"
           v-if="Active"
-          :username="data1.user.username"
-          :email="data1.user.email"
-          :img="data1.user.img"
+          :username="user.username"
+          :email="user.email"
+          :img="user.avatar"
+          :role="user.role"
+          :id="user.id"
         />
       </div>
-      <div class="inline-flex">
+      <div class="inline-flex" v-if="auth">
         <div
           class="inline-flex DropDown items-center cursor-pointer select-none modal"
           style="padding-right: 1.5vw"
@@ -78,8 +101,45 @@ onMounted(() => {
           v-if="clean"
         >
           <img src="/arrow.svg" style="width: 1.2vw; margin-right: 0.7vw; margin-left: 1vw" />
-          <img src="/avatar.jfif" class="rounded-full" style="width: 3.5vw" />
+          <img v-if="user.avatar" :src="user.avatar" class="rounded-full" style="width: 3.5vw" />
+          <img v-if="!user.avatar" src="/avatar.jpg" class="rounded-full" style="width: 3.5vw" />
         </div>
+      </div>
+      <div
+        v-if="!auth"
+        class="content-center grid grid-rows-1 grid-cols-3 gap-2 items-center"
+        style="width: 19vw; margin-right: 1vw"
+      >
+        <router-link class="col-span-2" :to="{ path: '/register' }"
+          ><div
+            class="items-center rounded-lg text-center"
+            style="
+              padding-left: 1vw;
+              padding-right: 1vw;
+              padding-top: 0.7vw;
+              padding-bottom: 0.7vw;
+              font-size: 1.1vw;
+              background-color: #c4d9d2;
+            "
+          >
+            Регистрация
+          </div>
+        </router-link>
+        <router-link :to="{ path: '/login' }">
+          <div
+            class="items-center rounded-lg text-center"
+            style="
+              padding-left: 1vw;
+              padding-right: 1vw;
+              padding-top: 0.7vw;
+              padding-bottom: 0.7vw;
+              font-size: 1.1vw;
+              background-color: #c4d9d2;
+            "
+          >
+            Вход
+          </div></router-link
+        >
       </div>
     </div>
   </div>
