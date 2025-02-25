@@ -5,121 +5,129 @@ import 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 import '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
 import '/lrm-graphhopper-1.2.0.js'
 import { auth_get, auth_post } from '@/request'
+import router from '../router'
 
+
+// В комментах указания для создания из этого страницы отображения
 const routeId = 1
 const mapContainer = ref()
-const map = ref()
-const userLat = ref(0)
-const userLon = ref(0)
 const api_key = import.meta.env.VITE_GRAPHHOPPER_API_KEY
-const full_loading = ref(false)
+const map = ref()
+const control = ref()
+const mainData = ref()
 const title = ref('')
 const text = ref('')
-const control = ref()
 var points = ref([])
 var count = 0
-const mainImage = ref(null)
 const imageUrl = ref('/upload-photo.png')
-const loading = ref(false)
-const buttonText = ref('Добавить точку')
 const success = ref(false)
-const mainData = ref()
-
+// Выше переменные нужные для загрузки
+const userLat = ref(0)
+const userLon = ref(0)
+const mainImage = ref(null)
+const buttonText = ref('Добавить точку')
+const loading = ref(false)
 
 onMounted(() => {
   fetchData()
   watch(
-  () => mainData.value,
-  () => {
-    success.value = true
-    title.value = mainData.value[0].title
-    text.value = mainData.value[0].description
-    mainData.value[0].content_blocks.forEach((item) =>{
-      let images = []
-      item.images.forEach((image) =>{
-        images.push({file: null, fileUrl: import.meta.env.VITE_FILES_API_URL + 'files/download/' + image})
-      })
-      points.value.push({
-            lat: item.geoposition[0],
-            lon: item.geoposition[1],
-            id: count,
-            text: item.text,
-            position: item.position,
-            oldPosition: item.position,
-            title: item.title,
-            images: images,
+    () => mainData.value,
+    () => {
+      success.value = true
+      title.value = mainData.value[0].title
+      text.value = mainData.value[0].description
+      imageUrl.value =
+        import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo
+      mainData.value[0].content_blocks.forEach((item) => {
+        let images = []
+        item.images.forEach((image) => {
+          images.push({
+            file: null,
+            fileUrl: import.meta.env.VITE_FILES_API_URL + 'files/download/' + image,
           })
-      count++
-    })
-    const promise = new Promise((resolve, reject) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          resolve({ lat: position.coords.latitude, lon: position.coords.longitude })
         })
-      } else {
-        resolve({ lat: 0, lon: 0 })
-      }
-    })
-    promise.then((result) => {
-      userLat.value = result.lat
-      userLon.value = result.lon
-      console.log(userLat.value, userLon.value)
-      // Копируй
-      map.value = L.map(mapContainer.value).setView([userLat.value, userLon.value], 13)
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map.value)
-      control.value = L.Routing.control({
-        waypoints: [],
-        router: L.Routing.graphHopper(api_key, {
-          urlParameters: { vehicle: 'foot', locale: 'ru' },
-        }),
-        language: 'ru',
-        draggableWaypoints: false,
-        addWaypoints: false,
-      }).addTo(map.value)
-      // До сюда
-      control.value.setWaypoints(points.value.map((p) => L.latLng(p.lat, p.lon)))
-      map.value.on('click', function (e) {
-        if (is_add.value == true) {
-          buttonText.value = 'Добавить точку'
-          points.value.push({
-            lat: e.latlng.lat,
-            lon: e.latlng.lng,
-            id: count,
-            text: '',
-            position: points.value.length + 1,
-            oldPosition: points.value.length + 1,
-            title: '',
-            images: [],
+        points.value.push({
+          lat: item.geoposition[0],
+          lon: item.geoposition[1],
+          id: count,
+          text: item.text,
+          position: item.position,
+          oldPosition: item.position,
+          title: item.title,
+          images: images,
+        })
+        count++
+      })
+      // этот промис и его обработку вырезать от сюда
+      const promise = new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            resolve({ lat: position.coords.latitude, lon: position.coords.longitude })
           })
-          is_add.value = false
-          control.value.setWaypoints(points.value.map((p) => L.latLng(p.lat, p.lon)))
-          count++
+        } else {
+          resolve({ lat: 0, lon: 0 })
         }
       })
-    })
-  },
-)
+      promise.then((result) => {
+        userLat.value = result.lat
+        userLon.value = result.lon
+        // До сюда и далее будет
+        map.value = L.map(mapContainer.value).setView([userLat.value, userLon.value], 13) // setView можешь хоть 0 0 поставить
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map.value)
+        control.value = L.Routing.control({
+          waypoints: [],
+          router: L.Routing.graphHopper(api_key, {
+            urlParameters: { vehicle: 'foot', locale: 'ru' },
+          }),
+          language: 'ru',
+          draggableWaypoints: false,
+          addWaypoints: false,
+        }).addTo(map.value)
+        control.value.setWaypoints(points.value.map((p) => L.latLng(p.lat, p.lon)))
+        //То что ниже убираешь
+        map.value.on('click', function (e) {
+          if (is_add.value == true) {
+            buttonText.value = 'Добавить точку'
+            points.value.push({
+              lat: e.latlng.lat,
+              lon: e.latlng.lng,
+              id: count,
+              text: '',
+              position: points.value.length + 1,
+              oldPosition: points.value.length + 1,
+              title: '',
+              images: [],
+            })
+            is_add.value = false
+            control.value.setWaypoints(points.value.map((p) => L.latLng(p.lat, p.lon)))
+            count++
+          }
+        })
+      })
+      // до этой строчки
+    },
+  )
 })
 
-var is_add = ref(false)
+var is_add = ref(false) // не нужно
 
 async function fetchData() {
   try {
     let data = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
-    mainData.value = data
-    if (data == undefined) {
+    if (data == undefined | mainData.value[0].status == "check") {
       throw undefined
     }
+    mainData.value = data
     console.log(data)
   } catch (err) {
     console.error(err)
   }
 }
 
-
+// Убираешь от этой строчки
 async function Save() {
   let content_blocks = []
   for (let i = 0; i <= points.value.length - 1; i++) {
@@ -128,20 +136,23 @@ async function Save() {
     let data = []
     if (p.images.length > 0) {
       p.images.forEach((image) => {
-        if (image.file != null){
-        formData.append('files', image.file)
-        }
-        else{
-          data.push(image.fileUrl.slice((import.meta.env.VITE_FILES_API_URL + 'files/download/').length))
+        if (image.file != null) {
+          formData.append('files', image.file)
+        } else {
+          data.push(
+            image.fileUrl.slice((import.meta.env.VITE_FILES_API_URL + 'files/download/').length),
+          )
         }
       })
       if (formData.has('files')) {
-      data.push(...await auth_post(
-        'files/upload_list_files',
-        formData,
-        import.meta.env.VITE_FILES_API_URL,
-        'multipart/form-data',
-      ))
+        data.push(
+          ...(await auth_post(
+            'files/upload_list_files',
+            formData,
+            import.meta.env.VITE_FILES_API_URL,
+            'multipart/form-data',
+          )),
+        )
       }
       console.log(data)
     }
@@ -153,18 +164,45 @@ async function Save() {
       images: data,
     })
   }
+  let image
+  if (
+    (mainImage.value == null) |
+    (imageUrl.value !=
+      import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo)
+  ) {
+    let formData = new FormData()
+    formData.append('file', mainImage.value)
+    image = await auth_post(
+      'files/upload',
+      formData,
+      import.meta.env.VITE_FILES_API_URL,
+      'multipart/form-data',
+    )
+  }
+  else{
+    image = imageUrl.value.slice((import.meta.env.VITE_FILES_API_URL + 'files/download/').length)
+  }
   let data = {
     title: title.value,
     description: text.value,
     content_blocks: content_blocks,
+    photo: image,
     main_route_id: routeId,
   }
   console.log(data)
   auth_post('routes/update', data)
 }
 
-function Public() {
-  return '123'
+async function Public() {
+  try {
+    let data = await auth_post(`routes/publication_request?route_id=${routeId}`)
+    if (data == undefined) {
+      throw undefined
+    }
+    router.push('/') //Сделай чтобы на профиль переотправляло
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 function AddPoint() {
@@ -270,6 +308,8 @@ function DeletePoint(id) {
   }
   ReRoute()
 }
+// До этой наверное
+// По странице сам поймешь
 </script>
 
 <template>
@@ -296,7 +336,9 @@ function DeletePoint(id) {
         </div>
         <div class="mt-5">
           <button class="text-lg bg-red-400 p-2 w-1/5 rounded-lg" @click="Save">Сохранить</button>
-          <button class="text-lg bg-green-400 p-2 w-1/5 rounded-lg ml-5">Отправить</button>
+          <button class="text-lg bg-green-400 p-2 w-1/5 rounded-lg ml-5" @click="Public">
+            Отправить
+          </button>
         </div>
       </div>
       <div v-for="point in points" :key="point.id" class="border-2">
