@@ -8,8 +8,8 @@ import { auth_get, auth_post } from '@/request'
 import router from '../router'
 
 
-// В комментах указания для создания из этого страницы отображения
-const routeId = 1
+// В комментах указания для создания из этого страницы отображения и (!) то что тут + добавь хедер и получение айди из адреса
+const routeId = 1 // (!) сам айдишник
 const mapContainer = ref()
 const api_key = import.meta.env.VITE_GRAPHHOPPER_API_KEY
 const map = ref()
@@ -117,7 +117,7 @@ var is_add = ref(false) // не нужно
 async function fetchData() {
   try {
     let data = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
-    if (data == undefined | mainData.value[0].status == "check") {
+    if (data == undefined | mainData.value[0].status == "check") { // (!) Добавь проверку на пользователя
       throw undefined
     }
     mainData.value = data
@@ -199,7 +199,7 @@ async function Public() {
     if (data == undefined) {
       throw undefined
     }
-    router.push('/') //Сделай чтобы на профиль переотправляло
+    router.push('/') // (!) Сделай чтобы на профиль переотправляло, не для отображения
   } catch (err) {
     console.error(err)
   }
