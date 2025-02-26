@@ -1,8 +1,16 @@
 <script setup>
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const handleLogout = () => {
+  localStorage.clear()
+  router.push('/login')
+}
 let data = defineProps({
   username: String,
   email: String,
   img: String,
+  role: String,
+  id: String,
 })
 </script>
 <template>
@@ -16,12 +24,22 @@ let data = defineProps({
   >
     <div role="none" style="padding-top: 0.3vw">
       <a
+        v-if="data.img"
         href="#"
         class="select-none flex justify-center cursor-default"
         role="menuitem"
         tabindex="-1"
         id="menu-item-0"
         ><img :src="data.img" class="rounded-full" style="width: 5.2vw" />
+      </a>
+      <a
+        v-if="!data.img"
+        href="#"
+        class="select-none flex justify-center cursor-default"
+        role="menuitem"
+        tabindex="-1"
+        id="menu-item-0"
+        ><img src="/avatar.jpg" class="rounded-full" style="width: 5.2vw" />
       </a>
       <a
         href="#"
@@ -43,21 +61,24 @@ let data = defineProps({
       >
       <hr class="DropDownHr" />
       <hr class="DropDownHr" />
+      <router-link :to="{ path: '/profile', query: { id: data.id } }">
+        <a
+          href="#"
+          class="block DropDownElement select-none"
+          style="padding-left: 1.15vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
+          role="menuitem"
+          tabindex="-1"
+          id="menu-item-0"
+          ><div class="inline-flex items-center">
+            <img
+              src="/profile-icon.png"
+              style="width: 0.8vw; height: 1.1vw; margin-right: 0.8vw"
+            />Профиль
+          </div>
+        </a></router-link
+      >
       <a
-        href="#"
-        class="block DropDownElement select-none"
-        style="padding-left: 1.15vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
-        role="menuitem"
-        tabindex="-1"
-        id="menu-item-0"
-        ><div class="inline-flex items-center">
-          <img
-            src="/profile-icon.png"
-            style="width: 0.8vw; height: 1.1vw; margin-right: 0.8vw"
-          />Профиль
-        </div>
-      </a>
-      <a
+        v-if="!data.role == 'user'"
         href="#"
         class="block DropDownElement"
         style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
@@ -65,27 +86,36 @@ let data = defineProps({
         tabindex="-1"
         id="menu-item-1"
         ><div class="inline-flex items-center">
-          <img
-            src="/location.png"
-            style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw"
-          />Маршруты
+          <img src="/moder.png" style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw" />Модерация
         </div></a
       >
-
-      <form method="POST" action="#" role="none">
-        <button
-          type="submit"
-          style="padding-left: 1.14vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
-          class="block w-full text-left exit DropDownElement"
+      <router-link :to="{ path: '/my_routes', query: { id: data.id } }">
+        <a
+          href="#"
+          class="block DropDownElement"
+          style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
           role="menuitem"
           tabindex="-1"
-          id="menu-item-3"
-        >
-          <div class="inline-flex items-center">
-            <img src="/exit.png" style="width: 1vw; height: 1.1vw; margin-right: 0.6vw" />Выход
-          </div>
-        </button>
-      </form>
+          id="menu-item-1"
+          ><div class="inline-flex items-center">
+            <img src="/location.png" style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw" />Мои
+            маршруты
+          </div></a
+        ></router-link
+      >
+      <button
+        @click="handleLogout"
+        type="submit"
+        style="padding-left: 1.14vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
+        class="block w-full text-left exit DropDownElement"
+        role="menuitem"
+        tabindex="-1"
+        id="menu-item-3"
+      >
+        <div class="inline-flex items-center">
+          <img src="/exit.png" style="width: 1vw; height: 1.1vw; margin-right: 0.6vw" />Выход
+        </div>
+      </button>
     </div>
   </div>
 </template>

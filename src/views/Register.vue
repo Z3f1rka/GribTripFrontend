@@ -106,6 +106,9 @@ const submitHandler = async (data) => {
         </div>
       </FormKit>
       <div v-if="formErrors.general" class="text-red-500 mb-4">{{ formErrors.general }}</div>
+      <router-link :to="{ path: '/login' }"
+        ><div style="font-size: 1vw">Уже есть аккаунт</div></router-link
+      >
       <div v-if="submitted">
         <h2 class="text-xl text-green-500">Регистрация прошла успешно!</h2>
       </div>
