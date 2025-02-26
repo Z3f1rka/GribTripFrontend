@@ -16,12 +16,12 @@ const handleMouseLeave = () => {
 </script>
 <template>
   <div
-    style="width: 45vw; height: 25vw; margin-left: 2vw; margin-right: 2vw; margin-top: 5vw"
-    class="relative justify-center border-1 cursor-pointer overflow-hidden z-0"
+    style="width: 45vw; height: 25vw; margin-left: 2vw; margin-right: 2vw; margin-top: 1.5vw"
+    class="relative justify-center cursor-pointer overflow-hidden z-10 select-none"
     @mouseover="handleMouseOver"
     @mouseleave="handleMouseLeave"
   >
-    <img :src="data.card.img" class="w-full h-full object-cover absolute" />
+    <img :src="data.card.image" class="w-full h-full object-cover" />
     <div
       class="absolute bottom-0 w-full content-center inline-flex desc"
       :class="{ 'desc-hovered': isHovered }"
@@ -40,7 +40,18 @@ const handleMouseLeave = () => {
       >
         {{ data.card.description }}
       </h1>
-      <img src="/arrow1.svg" style="width: 1.6vw; margin-right: 2vw" />
+      <img
+        v-if="data.card.approved_id === 1"
+        src="/arrow1.svg"
+        style="width: 1.6vw; margin-right: 2vw; margin-top: 1.3vw"
+        class="absolute right-0"
+      />
+      <img
+        v-if="data.card.approved_id === null"
+        src="/cross.png"
+        style="width: 2vw; margin-right: 2vw; margin-top: 1.3vw"
+        class="absolute right-0"
+      />
     </div>
   </div>
 </template>

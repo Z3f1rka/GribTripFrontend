@@ -75,10 +75,21 @@ onMounted(() => {
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
-    <Header class="nav" :scroll="false" />    
+    <Header class="nav" :scroll="false" />
     <div v-if="loading" style="margin-top: 8vw">
       <div>
-        <img :src="CardInfo[ActiveVersion].photo" class="rounded-full" style="width: 5.2vw" />
+        <img
+          v-if="CardInfo[ActiveVersion] || CardInfo[ActiveVersion].photo"
+          :src="CardInfo[ActiveVersion].photo"
+          class="rounded-full place-self-center"
+          style="width: 8vw; margin-bottom: 2vw"
+        />
+        <img
+          v-if="!(CardInfo[ActiveVersion] || CardInfo[ActiveVersion].photo)"
+          src="/avatar.jpg"
+          class="rounded-full place-self-center"
+          style="width: 8vw; margin-bottom: 2vw"
+        />
       </div>
       <div>{{ CardInfo[ActiveVersion].title }}</div>
       <div>{{ CardInfo[ActiveVersion].description }}</div>

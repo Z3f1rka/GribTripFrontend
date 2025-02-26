@@ -15,14 +15,19 @@ async function f() {
   try {
     const data = await auth_get('auth/me')
     user.value = data
-  } catch (error) {
-    console.error('Ошибка при загрузке данных пользователя:', error)
+    if (data == undefined) {
+      throw undefined
+    }
+  } catch (err) {
+    console.log(err)
+    router.push({ path: '/' })
+    alert('Такого пользователя')
   }
 }
 f()
 watch(
   () => user.value,
-  (newValue) => {
+  () => {
     auth.value = true
   },
 )
@@ -37,6 +42,9 @@ const handleClickOutside = (event) => {
 }
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+})
+onMounted(() => {
+  f()
 })
 </script>
 

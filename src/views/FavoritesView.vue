@@ -32,7 +32,7 @@ watch(
 
 async function f() {
   try {
-    const data = await auth_get(`history/routes/other_user?user_id=${id}`)
+    const data = await auth_get(`auth/favorites/fetch/other?user_id=${id}`)
     selfcards.array = data
   } catch (error) {
     console.error('Ошибка при загрузке данных пользователя:', error)
@@ -61,7 +61,7 @@ onMounted(async () => {
     <Header class="nav" :scroll="false" />
     <div class="self-center" style="margin-top: max(6vw, 40px)">
       <div class="flex justify-center text-white">
-        <p style="font-size: 3vw; margin-top: 3vw">Оцененные</p>
+        <p style="font-size: 3vw; margin-top: 3vw">Избранные</p>
       </div>
       <div class="flex justify-center" style="margin-top: 2vw">
         <div class="relative" style="width: 40vw">
@@ -91,7 +91,7 @@ onMounted(async () => {
       >
         <div v-for="item in selfcards.array" :key="item.id">
           <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
-            <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+            <Card :card="item.route" style="border-width: 1px; border-color: white"></Card>
           </router-link>
         </div>
       </div>

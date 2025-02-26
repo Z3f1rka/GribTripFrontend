@@ -7,6 +7,7 @@ import HistoryView from '@/views/HistoryView.vue'
 import MyRoutesView from '@/views/MyRoutesView.vue'
 import CardView from '@/views/CardView.vue'
 import ModerView from '@/views/ModerView.vue'
+import FavoritesView from '@/views/FavoritesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,7 +33,7 @@ const router = createRouter({
       component: ProfileView,
     },
     {
-      path: '/histoty',
+      path: '/history',
       name: 'history',
       component: HistoryView,
     },
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/moder',
       name: 'moder',
       component: ModerView,
+    },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: FavoritesView,
     },
   ],
 })

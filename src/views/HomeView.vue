@@ -105,7 +105,7 @@ onMounted(async () => {
       <div class="text-white inline-grid grid-cols-2" style="margin-right: 1vw; margin-left: 0.3vw">
         <h1 v-for="item in state.array" :key="item.id">
           <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
-            <Card :card="item"></Card>
+            <Card :card="item" style="border-width: 1px; border-color: white"></Card>
           </router-link>
         </h1>
       </div>
