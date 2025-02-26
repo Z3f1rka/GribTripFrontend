@@ -6,9 +6,10 @@ import '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
 import '/lrm-graphhopper-1.2.0.js'
 import { auth_get, auth_post } from '@/request'
 import router from '../router'
+import { useRouter, useRoute } from 'vue-router'
 
 // В комментах указания для создания из этого страницы отображения и (!) то что тут + добавь хедер и получение айди из адреса
-const routeId = 1 // (!) сам айдишник
+const routeId = useRoute()['query']['id'] // (!) сам айдишник
 const mapContainer = ref()
 const api_key = import.meta.env.VITE_GRAPHHOPPER_API_KEY
 const map = ref()
@@ -18,7 +19,8 @@ const title = ref('')
 const text = ref('')
 var points = ref([])
 var count = 0
-const imageUrl = ref('/upload-photo.png')
+const imageUrl = ref('')
+const NoImage = ref('/upload-photo.png')
 const success = ref(false)
 // Выше переменные нужные для загрузки
 const userLat = ref(0)
@@ -120,14 +122,13 @@ var is_add = ref(false) // не нужно
 async function fetchData() {
   try {
     let data = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
-    if (data == undefined) {
-      // (!) Добавь проверку на пользователя
+    if (data == undefined || data[0].status == 'check') {
       throw undefined
     }
     mainData.value = data
-    console.log(data)
   } catch (err) {
-    console.error(err)
+    alert('У вас нет доступа к этому маршруту')
+    router.push({ path: '/' })
   }
 }
 
@@ -202,7 +203,7 @@ async function Public() {
     if (data == undefined) {
       throw undefined
     }
-    router.push('/') // (!) Сделай чтобы на профиль переотправляло, не для отображения
+    router.push(`/profile?id=${routeId}`)
   } catch (err) {
     console.error(err)
   }
@@ -316,67 +317,284 @@ function DeletePoint(id) {
 </script>
 
 <template>
-  <div class="grid grid-cols-5" v-if="success">
-    <div class="col-span-2 h-screen overflow-auto">
-      <div class="border-2 bg-slate-100 p-5 overflow-hidden">
-        <input placeholder="Введите название" class="h-10 w-full text-2xl" v-model="title" />
-        <div class="grid grid-cols-5 mt-5 h-200">
-          <textarea
-            class="col-span-3 mr-5 h-full resize-none"
-            placeholder="Описание маршрута"
-            v-model="text"
-          ></textarea>
-          <label class="col-span-2 h-full w-full overflow-hidden">
+  <div class="min-h-screen flex flex-col">
+    <div class="flex-grow bg-gradient-to-b z-10">
+      <Header class="nav" :scroll="false" />
+      <div class="grid grid-cols-5" v-if="success" style="margin-top: max(6vw, 50px)">
+        <div class="col-span-2 h-screen overflow-auto">
+          <div class="overflow-hidden bg-slate-200" style="padding: 1.5vw">
             <input
-              type="file"
-              accept="image/*"
-              @change="AddImage"
-              style="display: none"
-              class="h-full w-full"
+              placeholder="Введите название"
+              class="w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              style="
+                font-size: 1.8vw;
+                padding-bottom: 0.3vw;
+                padding-top: 0.3vw;
+                padding-left: 0.5vw;
+                padding-right: 0.5vw;
+              "
+              v-model="title"
             />
-            <img :src="imageUrl" v-if="loading" class="object-cover h-full w-full" style="" />
-          </label>
-        </div>
-        <div class="mt-5">
-          <button class="text-lg bg-red-400 p-2 w-1/5 rounded-lg" @click="Save">Сохранить</button>
-          <button class="text-lg bg-green-400 p-2 w-1/5 rounded-lg ml-5" @click="Public">
-            Отправить
-          </button>
-        </div>
-      </div>
-      <div v-for="point in points" :key="point.id" class="border-2">
-        <div>
-          <div>
-            <input type="number" v-model="point.position" v-on:change="RePosition(point.id)" />
-            <input v-model="point.title" />
-          </div>
-          <div>
-            <input v-model="point.lat" v-on:change="ReRoute" />
-            <input v-model="point.lon" v-on:change="ReRoute" />
-            <button class="bg-red-500" @click="DeletePoint(point.id)">Удалить</button>
-          </div>
-        </div>
-        <div>
-          <textarea v-model="point.text"></textarea>
-          <input type="file" accept="image/*" @change="AddPointImage($event, point.id)" />
-          <div class="h-1/5 overflow-auto">
-            <div v-for="image in point.images" :key="image.fileUrl">
-              <img :src="image.fileUrl" />
-              <button class="bg-green-500" @click="DeletePointImage(point.id, image.fileUrl)">
-                Удалить
-              </button>
+            <div class="grid grid-cols-5">
+              <textarea
+                class="col-span-3 resize-none rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                placeholder="Описание маршрута"
+                v-model="text"
+                style="
+                  margin-top: 1vw;
+                  margin-right: 1vw;
+                  height: 11vw;
+                  font-size: 1.3vw;
+                  padding-bottom: 0.3vw;
+                  padding-top: 0.3vw;
+                  padding-left: 0.5vw;
+                  padding-right: 0.5vw;
+                "
+              ></textarea>
+              <label
+                class="col-span-2 overflow-hidden rounded-sm active:scale-95"
+                style="margin-top: 1vw; height: 11vw; transition: transform 0.1s ease"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  @change="AddImage"
+                  style="display: none"
+                  class="h-full w-full"
+                />
+                <img
+                  :src="imageUrl"
+                  v-if="loading && imageUrl != ''"
+                  class="object-cover h-full w-full"
+                  style=""
+                />
+                <img :src="NoImage" v-else class="object-cover h-full w-full" />
+              </label>
+            </div>
+            <div style="margin-top: 1vw" class="inline-flex">
+              <div
+                class="rounded-lg cursor-pointer text-white bg-indigo-500 active:scale-95"
+                @click="Save"
+                style="
+                  padding-bottom: 0.5vw;
+                  padding-top: 0.5vw;
+                  padding-left: 0.8vw;
+                  padding-right: 0.8vw;
+                  margin-right: 1vw;
+                  font-size: 1.1vw;
+                  transition: transform 0.1s ease;
+                "
+              >
+                Сохранить
+              </div>
+              <div
+                class="rounded-lg cursor-pointer text-white active:scale-95"
+                @click="Public"
+                style="
+                  padding-bottom: 0.5vw;
+                  padding-top: 0.5vw;
+                  padding-left: 0.8vw;
+                  padding-right: 0.8vw;
+                  font-size: 1.1vw;
+                  background-color: #a3cfdf;
+                  transition: transform 0.1s ease;
+                "
+              >
+                Отправить
+              </div>
             </div>
           </div>
+          <div
+            v-for="point in points"
+            :key="point.id"
+            class="bg-slate-300"
+            style="padding: 1vw; padding-bottom: 0"
+          >
+            <div class="border-b border-slate-500">
+              <div class="bg-slate-300 border-slate-400" style="padding-bottom: 3vw">
+                <div>
+                  <div class="inline-flex active:scale-95" style="transition: transform 0.1s ease">
+                    <input
+                      v-model="point.title"
+                      placeholder="Введите название точки"
+                      class="rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                      style="
+                        font-size: 1.2vw;
+                        padding-bottom: 0.3vw;
+                        padding-top: 0.3vw;
+                        padding-left: 0.5vw;
+                        padding-right: 0.5vw;
+                        width: 33vw;
+                        margin-right: 1vw;
+                      "
+                    /><button
+                      class="bg-red-500 text-white rounded-md"
+                      style="
+                        padding-right: 0.8vw;
+                        padding-left: 0.8vw;
+                        padding-top: 0.4vw;
+                        padding-bottom: 0.4vw;
+                      "
+                      @click="DeletePoint(point.id)"
+                    >
+                      <img src="/trash.png" class="cursor-pointer" style="height: 1vw" />
+                    </button>
+                  </div>
+                  <div
+                    class="inline-flex"
+                    style="padding-left: 0.3vw; padding-top: 0.5vw; padding-right: 0.3vw"
+                  >
+                    <div style="font-size: 1vw; margin-right: 1vw">Номер</div>
+                    <input
+                      type="number"
+                      v-model="point.position"
+                      v-on:change="RePosition(point.id)"
+                      style="width: 3vw; margin-right: 1vw"
+                      class="rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    />
+                  </div>
+                  <div class="inline-flex items-center" style="padding-left: 0.3vw">
+                    <div style="margin-right: 1vw; font-size: 1vw">Координаты точки</div>
+                    <input
+                      v-model="point.lat"
+                      v-on:change="ReRoute"
+                      class="rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                      style="
+                        margin-right: 0.5vw;
+                        width: 10vw;
+                        font-size: 1vw;
+                        padding: 0.1vw;
+                        padding-left: 0.2vw;
+                        padding-right: 0.2vw;
+                      "
+                    />
+                    <input
+                      v-model="point.lon"
+                      v-on:change="ReRoute"
+                      class="rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                      style="
+                        margin-right: 0.5vw;
+                        width: 10vw;
+                        font-size: 1vw;
+                        padding: 0.1vw;
+                        padding-left: 0.2vw;
+                        padding-right: 0.2vw;
+                      "
+                    />
+                  </div>
+                </div>
+                <div>
+                  <textarea
+                    class="resize-none rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full"
+                    v-model="point.text"
+                    placeholder="Введите описание точки"
+                    style="
+                      margin-top: 1vw;
+                      margin-right: 1vw;
+                      height: 9vw;
+                      font-size: 1vw;
+                      padding-bottom: 0.3vw;
+                      padding-top: 0.3vw;
+                      padding-left: 0.5vw;
+                      padding-right: 0.5vw;
+                      margin-bottom: 0.5vw;
+                    "
+                  ></textarea>
+                </div>
+                <div>
+                  <div style="width: 12vw; margin-bottom: 1vw">
+                    <label class="overflow-hidden rounded-sm" style="margin-top: 1vw; height: 11vw">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style="display: none; width: 10vw"
+                        @change="AddPointImage($event, point.id)"
+                      />
+                      <div
+                        class="bg-indigo-500 text-white rounded-md active:scale-95"
+                        style="
+                          width: 12vw;
+                          padding-top: 0.3vw;
+                          padding-bottom: 0.3vw;
+                          text-align: center;
+                          font-size: 1.1vw;
+                          transition: transform 0.1s ease;
+                        "
+                      >
+                        Добавить фото
+                      </div>
+                    </label>
+                  </div>
+                  <div class="text-center">
+                    <div
+                      class="inline-grid grid-cols-2 gap-4 active:scale-95"
+                      style="transition: transform 0.1s ease"
+                    >
+                      <div
+                        v-for="image in point.images"
+                        :key="image.fileUrl"
+                        class="image-container"
+                      >
+                        <img :src="image.fileUrl" class="image-item" />
+
+                        <button
+                          class="delete-button"
+                          @click="DeletePointImage(point.id, image.fileUrl)"
+                        >
+                          <img src="/trash.png" class="delete-icon" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <button
+              @click="AddPoint"
+              class="bg-indigo-500 rounded-md text-white active:scale-95"
+              style="
+                font-size: 2vw;
+                padding: 1vw 2vw;
+                margin: 2vw 2vw;
+                transition: transform 0.1s ease;
+              "
+            >
+              {{ buttonText }}
+            </button>
+          </div>
+        </div>
+        <div class="w-full h-screen col-span-3 z-0">
+          <div ref="mapContainer" style="width: 100%; height: 100%"></div>
         </div>
       </div>
-      <div class="flex justify-center mt-10">
-        <button @click="AddPoint" class="bg-blue-500 p-5 w-1/2 text-2xl rounded-md">
-          {{ buttonText }}
-        </button>
-      </div>
-    </div>
-    <div class="w-full h-screen col-span-3">
-      <div ref="mapContainer" style="width: 100%; height: 100%"></div>
     </div>
   </div>
 </template>
+<style scoped>
+.image-container {
+  position: relative; /* Контейнер для позиционирования */
+}
+.image-item {
+  width: 18vw;
+  height: 14vw;
+}
+.delete-button {
+  position: absolute; /* Остаётся как есть */
+  bottom: 0; /* Меняем значение на 0, чтобы прижать к низу */
+  right: 0; /* Добавляем свойство, чтобы прижать к правому краю */
+  transform: translateX(0); /* Убираем или изменяем, чтобы не смещать по горизонтали */
+  background-color: rgba(255, 0, 0, 0.7);
+  color: white;
+  border-radius: 0.2em;
+  padding: 0.3em 0.3em;
+  margin: 0.5vw;
+  border: none;
+  cursor: pointer;
+}
+.delete-icon {
+  height: 1vw;
+  vertical-align: middle; /* выровнять иконку с текстом, если есть */
+}
+</style>
