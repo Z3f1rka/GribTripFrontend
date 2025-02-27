@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, reactive, watch, onMounted } from 'vue'
-import { auth_get } from '../request.js'
+import { auth_get, auth_post } from '../request.js'
 import Header from '@/components/Header/Header.vue'
 import Card from '@/components/Main/Card.vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -19,6 +19,16 @@ async function loadRoutes() {
     state.array = data
   } catch (error) {
     state.array = []
+  }
+}
+
+async function NewRoute() {
+  try {
+    const newid = await auth_post(`routes/create`, { title: 'Новый маршрут' })
+    console.log(newid)
+    router.push(`/create_route?id=${newid}`)
+  } catch (err) {
+    console.log(err)
   }
 }
 
@@ -111,22 +121,24 @@ onMounted(async () => {
       </div>
       <div class="text-center">
         <p style="font-size: 3vw; color: #fcf3e7; margin-top: 3vw">Маршрутов больше нет</p>
-        <a href="#"
-          ><div
-            class="inline-flex items-center"
-            style="
-              padding-left: 2vw;
-              padding-right: 2vw;
-              padding-top: 0.8vw;
-              padding-bottom: 0.8vw;
-              font-size: 2.5vw;
-              background-color: #c4d9d2;
-              margin-bottom: 5vw;
-              margin-top: 2vw;
-            "
-          >
-            Создать маршрут
-          </div></a
+
+        <div
+          class="inline-flex items-center cursor-pointer active:scale-95"
+          @click="NewRoute()"
+          style="
+            padding-left: 2vw;
+            padding-right: 2vw;
+            padding-top: 0.8vw;
+            padding-bottom: 0.8vw;
+            font-size: 2.5vw;
+            background-color: #c4d9d2;
+            margin-bottom: 5vw;
+            margin-top: 2vw;
+            transition: transform 0.1s ease;
+          "
+        >
+          Создать маршрут
+        </div>
         >
       </div>
     </div>

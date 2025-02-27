@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
+let api = import.meta.env.VITE_FILES_API_URL
+
 let data = defineProps({
   card: Object,
 })
@@ -16,12 +18,24 @@ const handleMouseLeave = () => {
 </script>
 <template>
   <div
-    style="width: 45vw; height: 25vw; margin-left: 2vw; margin-right: 2vw; margin-top: 1.5vw"
-    class="relative justify-center cursor-pointer overflow-hidden z-10 select-none"
+    style="
+      width: 45vw;
+      height: 25vw;
+      margin-left: 2vw;
+      margin-right: 2vw;
+      margin-top: 1.5vw;
+      transition: transform 0.1s ease;
+    "
+    class="relative justify-center cursor-pointer overflow-hidden z-10 select-none active:scale-95"
     @mouseover="handleMouseOver"
     @mouseleave="handleMouseLeave"
   >
-    <img :src="data.card.image" class="w-full h-full object-cover" />
+    <img
+      v-if="data.card.photo != 'string' && data.card.photo != null"
+      :src="api + 'files/download/' + data.card.photo"
+      class="w-full h-full object-cover"
+    />
+    <img v-else src="/background3.png" class="w-full h-full object-cover" />
     <div
       class="absolute bottom-0 w-full content-center inline-flex desc"
       :class="{ 'desc-hovered': isHovered }"
@@ -41,13 +55,13 @@ const handleMouseLeave = () => {
         {{ data.card.description }}
       </h1>
       <img
-        v-if="data.card.approved_id === 1"
+        v-if="data.card.status === 'public'"
         src="/arrow1.svg"
         style="width: 1.6vw; margin-right: 2vw; margin-top: 1.3vw"
         class="absolute right-0"
       />
       <img
-        v-if="data.card.approved_id === null"
+        v-else
         src="/cross.png"
         style="width: 2vw; margin-right: 2vw; margin-top: 1.3vw"
         class="absolute right-0"
@@ -57,7 +71,7 @@ const handleMouseLeave = () => {
 </template>
 <style scoped>
 .desc {
-  transition: all 0.9s ease;
+  transition: all 0.6s ease;
   height: 6vw;
   background-color: rgba(15, 15, 15, 0.6);
   padding: 1vw;

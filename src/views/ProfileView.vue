@@ -2,7 +2,7 @@
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, reactive, computed } from 'vue'
 import Card from '@/components/Main/Card.vue'
-import { auth_get } from '@/request'
+import { auth_get, auth_post } from '@/request'
 import { useRouter, useRoute } from 'vue-router'
 
 const id = useRoute()['query']['id']
@@ -121,6 +121,15 @@ const fetchDataI = async () => {
     }
   }
 }
+async function NewRoute() {
+  try {
+    const newid = await auth_post(`routes/create`, { title: 'Новый маршрут' })
+    console.log(newid)
+    router.push(`/create_route?id=${newid}`)
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 onMounted(() => {
   fetchData()
@@ -133,7 +142,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col overflow-hidden">
     <div
       style="
         position: fixed;
@@ -249,22 +258,20 @@ onMounted(() => {
                   Оцененные
                 </div>
               </div>
-              <div class="col-span-1 flex justify-center">
-                <router-link :to="{ path: '/register' }"
-                  ><div
-                    class="rounded-lg text-center cursor-pointer plus-button-style"
-                    style="
-                      padding-left: 1vw;
-                      padding-right: 1vw;
-                      padding-top: 0.7vw;
-                      padding-bottom: 0.7vw;
-                      font-size: 1.1vw;
-                      border-width: 1px;
-                    "
-                  >
-                    +
-                  </div>
-                </router-link>
+              <div class="col-span-1 flex justify-center" @click="NewRoute()">
+                <div
+                  class="rounded-lg text-center cursor-pointer plus-button-style"
+                  style="
+                    padding-left: 1vw;
+                    padding-right: 1vw;
+                    padding-top: 0.7vw;
+                    padding-bottom: 0.7vw;
+                    font-size: 1.1vw;
+                    border-width: 1px;
+                  "
+                >
+                  +
+                </div>
               </div>
             </div>
             <div
