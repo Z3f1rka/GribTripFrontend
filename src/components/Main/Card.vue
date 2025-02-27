@@ -1,4 +1,5 @@
 <script setup>
+import router from '@/router'
 import { ref } from 'vue'
 
 let api = import.meta.env.VITE_FILES_API_URL
