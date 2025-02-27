@@ -160,7 +160,8 @@ const togglePoint = (pointId) => {
 async function SendComment(){
   if (myRating.value != 0){
     try{
-      await auth_post("comments/create", {text: myText.value, rating: Math.ceil(myRating), answer: isAnswer.value, route_id: routeId, type: "public"})
+      console.log({text: myText.value, rating: Math.ceil(myRating.value), answer: isAnswer.value, route_id: routeId, type: "public"})
+      await auth_post("comments/create", {text: myText.value, rating: Math.ceil(myRating.value), answer: isAnswer.value, route_id: routeId, type: "public"})
       router.push(`/card?id=${routeId}`)
     } catch (err){
       console.error(err)
@@ -359,7 +360,7 @@ async function SendComment(){
           <div>
             <p>Отзывы</p>
         <div class="mx-10">
-          <textarea placeholder="Введите текст" class="w-full"></textarea>
+          <textarea placeholder="Введите текст" class="w-full" v-model="myText"></textarea>
           <vue3starRatings
                     v-model="roundedRating"
                     :starSize="32"
