@@ -392,6 +392,18 @@ async function SendComment(){
           <input type="checkbox" v-model="isAnswer" placeholder="Я прошел маршрут">
           <button class="bg-slate-200" @click="SendComment">Оставить отзыв</button>
         </div>
+        <div>
+          <div v-for="comment in comments">
+            <textarea placeholder="Введите текст" class="w-full" v-model="comment.text"></textarea>
+          <vue3starRatings
+                    v-model="comment.rating"
+                    :starSize="32"
+                    starColor="#ff9800"
+                    inactiveColor="#333333"
+                    :numberOfStars="5"
+                  />
+          </div>
+        </div>
       </div>
         </div>
         <div class="w-full h-screen col-span-3 z-0">
