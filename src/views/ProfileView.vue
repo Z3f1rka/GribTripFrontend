@@ -159,7 +159,7 @@ onMounted(() => {
     <div class="flex-grow bg-gradient-to-b">
       <div class="grid sticky">
         <div
-          class="text-white grid grid-cols-5"
+          class="text-slate-900 grid grid-cols-5 bg-slate-50"
           style="
             border-width: 1px;
             border-color: white;
@@ -184,11 +184,35 @@ onMounted(() => {
             />
           </div>
           <div class="col-span-4">
-            <div style="font-size: 4vw">
-              {{ user ? user.username : 'Имя пользователя отсутствует' }}
-            </div>
-            <div style="font-size: 1.5vw" class="text-slate-200">
-              {{ user ? user.email : 'email пользователя отсутствует' }}
+            <div class="inline-flex">
+              <div>
+                <div style="font-size: 4vw">
+                  {{ user ? user.username : 'Имя пользователя отсутствует' }}
+                </div>
+                <div style="font-size: 1.5vw" class="text-slate-700">
+                  {{ user ? user.email : 'email пользователя отсутствует' }}
+                </div>
+              </div>
+              <div style="margin-top: 1vw; margin-left: 22vw" class="inline-flex">
+                <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
+                  <div style="margin-bottom: 1vw; font-size: 2.5vw">
+                    {{ selfcards.array.length }}
+                  </div>
+                  <div>Мои маршруты</div>
+                </div>
+                <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
+                  <div style="margin-bottom: 1vw; font-size: 2.5vw">
+                    {{ favoritescards.array.length }}
+                  </div>
+                  <div>Избранные</div>
+                </div>
+                <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
+                  <div style="margin-bottom: 1vw; font-size: 2.5vw">
+                    {{ historycards.array.length }}
+                  </div>
+                  <div>Отмеченные</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
