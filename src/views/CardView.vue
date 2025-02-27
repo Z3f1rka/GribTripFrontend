@@ -286,23 +286,19 @@ async function SendComment(){
               style="padding-bottom: 0"
             >
               <div class="border-b border-slate-500">
-                <div
-                  class="bg-slate-100 border-slate-400 cursor-pointer"
-                  style="padding-bottom: 3vw"
-                  @click="togglePoint(point.id)"
-                >
+                <div class="bg-slate-100 border-slate-400" style="padding-bottom: 3vw">
                   <div style="padding: 1vw">
                     <div
                       class="cursor-pointer"
                       style="display: flex; justify-content: space-between; align-items: center"
+                      @click="togglePoint(point.id)"
                     >
                       <div class="drop-shadow-lg">
                         <div
-                          v-if="point.text != ''"
-                          class="drop-shadow-lg"
+                          v-if="point.title != ''"
                           style="font-size: 1.8vw; margin-top: 0.5vw; padding-left: 0.3vw"
                         >
-                          {{ point.text }}
+                          {{ point.title }}
                         </div>
                         <div
                           v-else
@@ -343,7 +339,7 @@ async function SendComment(){
                         transform: pointsExpanded[point.id] ? 'translateY(0)' : 'translateY(-10px)',
                       }"
                     >
-                      <div class="text-center" v-if="point.image != ''">
+                      <div class="text-center" v-if="point.image != ''" style="margin-top: 2vw">
                         <Carousel :items-to-show="1.9" :wrap-around="true">
                           <Slide v-for="image in point.images" :key="image.fileUrl">
                             <div class="carousel__item">
@@ -361,8 +357,24 @@ async function SendComment(){
                         </Carousel>
                       </div>
 
-                      <div style="margin-top: 0.7vw; padding-left: 0.3vw">
-                        {{ point.title }}
+                      <div
+                        style="
+                          font-size: 1.2vw;
+                          min-height: 6vw;
+                          width: 100%;
+                          overflow: auto;
+                          border: none;
+                          outline: none;
+                          border-radius: 5px;
+                          white-space: pre-wrap;
+                          word-wrap: break-word;
+                          background-color: white;
+                          padding: 0vw 0.5vw;
+                          margin-top: 1vw;
+                          padding-left: 0.3vw;
+                        "
+                      >
+                        {{ point.text }}
                       </div>
                       <div
                         class="inline-flex text-slate-600"
