@@ -30,6 +30,7 @@ const load = ref(false)
 const myText = ref('')
 const myRating = ref(0)
 const isAnswer = ref(false)
+const comments = ref([])
 
 onMounted(() => {
   fetchData()
@@ -147,7 +148,27 @@ const fetchData = async () => {
     watch(
       () => user.value,
       () => {
-        load.value = true
+        async function f1(){
+          try {
+            const data1 = await auth_get(
+              `comments/get_all_route_public_comments?route_id=${routeId}`,
+            )
+            comments.value = data1
+            if (data1 == undefined) {
+              throw undefined
+            }
+          console.log(comments.value)
+          } catch (err) {
+            console.log(err)
+          }
+        }
+        f1()
+        watch(
+          () => comments.value,
+          () => {
+            load.value = true
+          },
+        )
       },
     )
   }
@@ -173,7 +194,7 @@ async function SendComment(){
   <div class="min-h-screen flex flex-col">
     <div class="flex-grow bg-gradient-to-b z-10 text-slate-900">
       <Header class="nav" :scroll="false" />
-      <div v-if="loading" style="margin-top: max(6vw, 50px)" class="grid grid-cols-5">
+      <div v-if="load" style="margin-top: max(6vw, 50px)" class="grid grid-cols-5">
         <div class="col-span-2 h-screen overflow-auto">
           <div class="overflow-hidden bg-slate-200">
             <img
