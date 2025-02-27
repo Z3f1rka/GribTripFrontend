@@ -3,7 +3,6 @@ import { FormKit } from '@formkit/vue'
 import axios from 'axios'
 import { ref } from 'vue'
 import router from '../router'
-import { submit } from '@formkit/icons'
 
 const submitted = ref(false)
 const formErrors = ref({})
@@ -11,7 +10,6 @@ const formErrors = ref({})
 const submitHandler = async (data) => {
   const API = import.meta.env.VITE_API_URL
   try {
-    console.log(data)
     const response = await axios.post(API + 'auth/login', data)
     if (response.data.error) {
       formErrors.value = response.data.error
@@ -76,7 +74,10 @@ const submitHandler = async (data) => {
         <FormKit type="submit">Продолжить ></FormKit>
       </FormKit>
       <!-- Вывод общей ошибки -->
-      <div v-if="formErrors.general" class="text-red-500 mb-4">{{ formErrors.general }}</div>
+      <div v-if="formErrors.general" class="text-red-500">{{ formErrors.general }}</div>
+      <router-link :to="{ path: '/register' }"
+        ><div style="font-size: 1vw">Создать аккаунт</div></router-link
+      >
       <div v-if="submitted">
         <h2 class="text-xl text-green-500">Регистрация прошла успешно!</h2>
       </div>
