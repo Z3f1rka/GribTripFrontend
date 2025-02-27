@@ -37,7 +37,7 @@ onMounted(() => {
       success.value = true
       title.value = mainData.value[0].title
       text.value = mainData.value[0].description
-      if (mainData.value[0].photo != 'string' && mainData.value[0].photo != null) {
+      if (mainData.value[0].photo != null && mainData.value[0].photo != null) {
         imageUrl.value =
           import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo
       }
@@ -126,7 +126,7 @@ async function fetchData() {
       throw undefined
     }
     mainData.value = data
-  } catch (err) {
+  } catch {
     alert('У вас нет доступа к этому маршруту')
     router.push({ path: '/' })
   }
@@ -172,10 +172,12 @@ async function Save() {
   }
   let image
   if (
-    (mainImage.value == null) |
+    (mainImage.value != null) &&
     (imageUrl.value !=
       import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo)
   ) {
+    console.log(mainImage.value)
+    console.log(imageUrl.value)
     let formData = new FormData()
     formData.append('file', mainImage.value)
     image = await auth_post(
