@@ -73,9 +73,9 @@ const fetchData = async () => {
     }
   } finally {
     loadingM.value = true
-    if (selfcards.array.length >= 5) {
+    if (selfcards.array.length >= 6) {
       rulefive.value = true
-      selfcards.array = selfcards.array.slice(0, 5)
+      selfcards.array = selfcards.array.slice(0, 6)
     }
   }
 }
@@ -90,9 +90,9 @@ const fetchDataH = async () => {
     console.log(err)
   } finally {
     loadingH.value = true
-    if (historycards.array.length >= 5) {
+    if (historycards.array.length >= 6) {
       rulefiveH.value = true
-      historycards.array = historycards.array.slice(0, 5)
+      historycards.array = historycards.array.slice(0, 6)
     }
   }
 }
@@ -115,9 +115,9 @@ const fetchDataI = async () => {
     console.log(err)
   } finally {
     loadingF.value = true
-    if (favoritescards.array.length >= 5) {
+    if (favoritescards.array.length >= 6) {
       rulefiveF.value = true
-      favoritescards.array = favoritescards.array.slice(0, 5)
+      favoritescards.array = favoritescards.array.slice(0, 6)
     }
   }
 }
@@ -146,7 +146,7 @@ onMounted(() => {
     <div
       style="
         position: fixed;
-        background-image: url('/zve.jpg');
+        background-image: url('/wood.jpg');
         background-size: cover;
         background-position: center center;
         filter: blur(20px);
@@ -157,38 +157,42 @@ onMounted(() => {
     ></div>
     <Header class="nav" :scroll="false" />
     <div class="flex-grow bg-gradient-to-b">
-      <div class="grid grid-cols-8 sticky">
-        <div class="col-span-3 text-center text-white">
-          <div
-            style="
-              border-width: 1px;
-              border-color: white;
-              padding-top: max(12vw, 40px);
-              padding-bottom: 6vw;
-              margin-left: 4vw;
-            "
-          >
+      <div class="grid sticky">
+        <div
+          class="text-white grid grid-cols-5"
+          style="
+            border-width: 1px;
+            border-color: white;
+            padding-top: max(12vw, 40px);
+            padding-bottom: 6vw;
+            margin-left: 4vw;
+            margin-right: 4vw;
+          "
+        >
+          <div class="grid col-span-1 justify-center text-center">
             <img
               v-if="user && user.avatar"
               :src="user.avatar"
-              class="rounded-lg place-self-center"
-              style="width: 8vw; margin-bottom: 2vw"
+              class="rounded-lg"
+              style="width: 12vw"
             />
             <img
               v-if="!(user && user.avatar)"
               src="/avatar.jpg"
-              class="rounded-lg place-self-center"
-              style="width: 8vw; margin-bottom: 2vw"
+              class="rounded-lg"
+              style="width: 12vw"
             />
-            <div style="font-size: 2vw">
+          </div>
+          <div class="col-span-4">
+            <div style="font-size: 4vw">
               {{ user ? user.username : 'Имя пользователя отсутствует' }}
             </div>
-            <div style="font-size: 1.5vw">
+            <div style="font-size: 1.5vw" class="text-slate-200">
               {{ user ? user.email : 'email пользователя отсутствует' }}
             </div>
           </div>
         </div>
-        <div class="grid col-span-5" style="margin-top: max(6vw, 40px)">
+        <div class="grid" style="margin-top: max(6vw, 40px)">
           <div>
             <div
               class="content-center grid grid-rows-1 grid-cols-10 items-center place-self-center text-white select-none"
@@ -276,7 +280,6 @@ onMounted(() => {
             </div>
             <div
               v-if="loadingM && Active === 0"
-              class="text-white flex justify-center items-center flex-wrap container content-box"
               style="
                 margin-right: 1vw;
                 margin-left: 0.3vw;
@@ -284,15 +287,24 @@ onMounted(() => {
                 transition: 0.3s ease;
               "
             >
-              <div v-for="item in selfcards.array" :key="item.id">
-                <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
-                  <Card :card="item" style="border-width: 1px; border-color: white"></Card>
-                </router-link>
+              <div class="text-white inline-grid grid-cols-2">
+                <div v-for="item in selfcards.array" :key="item.id">
+                  <div v-if="item.status == 'private'">
+                    <router-link :to="{ path: '/create_route', query: { id: item.main_route_id } }">
+                      <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                    </router-link>
+                  </div>
+                  <div v-else>
+                    <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+                      <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                    </router-link>
+                  </div>
+                </div>
               </div>
-              <div v-if="rulefive" class="flex container justify-center">
+              <div v-if="rulefive" class="flex justify-center" style="margin-top: 2vw">
                 <router-link :to="{ path: '/my_routes', query: { id: id } }"
                   ><div
-                    class="items-center rounded-lg text-center hover:bg-white hover:text-black"
+                    class="items-center rounded-lg text-center hover:bg-white hover:text-black text-white active:scale-95"
                     style="
                       margin-top: 1vw;
                       padding-left: 1vw;
@@ -310,7 +322,7 @@ onMounted(() => {
               </div>
             </div>
             <transition name="fade" mode="out-in">
-              <div key="transition-wrapper" style="transition: 0.3s ease">
+              <div key="transition-wrapper" style="transition: 0.3s ease; margin-bottom: auto">
                 <div
                   v-if="loadingH && Active === 2"
                   class="text-white flex justify-center items-center flex-wrap content-box"
@@ -387,21 +399,21 @@ onMounted(() => {
                 <div
                   v-if="favoritescards.array.length === 0 && Active === 1"
                   class="text-center text-white content-box"
-                  style="font-size: 1.4vw; margin-top: 2vw"
+                  style="font-size: 1.4vw; margin-top: 2vw; margin-bottom: 20vw"
                 >
                   Нет избранных маршрутов
                 </div>
                 <div
                   v-if="selfcards.array.length === 0 && Active === 0"
                   class="text-center text-white content-box"
-                  style="font-size: 1.4vw; margin-top: 2vw"
+                  style="font-size: 1.4vw; margin-top: 2vw; margin-bottom: 20vw"
                 >
                   Нет моих маршрутов
                 </div>
                 <div
                   v-if="historycards.array.length === 0 && Active === 2"
                   class="text-center text-white content-box"
-                  style="font-size: 1.4vw; margin-top: 2vw"
+                  style="font-size: 1.4vw; margin-top: 2vw; margin-bottom: 20vw"
                 >
                   Нет оцененнных маршрутов
                 </div>
