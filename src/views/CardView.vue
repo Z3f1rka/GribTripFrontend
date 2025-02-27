@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, computed } from 'vue'
-import { auth_get } from '@/request'
+import { auth_get, auth_post } from '@/request'
 import vue3starRatings from 'vue3-star-ratings'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
@@ -27,6 +27,9 @@ const success = ref(false)
 const userLat = ref(0)
 const userLon = ref(0)
 const load = ref(false)
+const myText = ref('')
+const myRating = ref(0)
+const isAnswer = ref(false)
 
 onMounted(() => {
   fetchData()
@@ -34,14 +37,14 @@ onMounted(() => {
     () => load.value,
     () => {
       success.value = true
-      title.value = mainData.value[0].title
-      text.value = mainData.value[0].description
-      if (mainData.value[0].photo != 'string' && mainData.value[0].photo != null) {
+      title.value = mainData.value.title
+      text.value = mainData.value.description
+      if (mainData.value.photo != 'string' && mainData.value.photo != null) {
         imageUrl.value =
-          import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo
+          import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value.photo
       }
-      if (mainData.value[0].content_blocks != null) {
-        mainData.value[0].content_blocks.forEach((item) => {
+      if (mainData.value.content_blocks != null) {
+        mainData.value.content_blocks.forEach((item) => {
           let images = []
           item.images.forEach((image) => {
             images.push({
@@ -100,18 +103,17 @@ onMounted(() => {
 let user = ref(null)
 let loading = ref(false)
 let ActiveVersion = ref(0)
-const rating_1 = ref(0)
 const roundedRating = computed({
-  get: () => Math.ceil(rating_1.value),
+  get: () => Math.ceil(myRating.value),
   set: (newValue) => {
-    rating_1.value = newValue
+    myRating.value = newValue
   },
 })
 
 const fetchData = async () => {
   loading.value = false
   try {
-    mainData.value = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
+    mainData.value = await auth_get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
     if (mainData.value == undefined) {
       throw undefined
     }
@@ -129,7 +131,7 @@ const fetchData = async () => {
     async function f() {
       try {
         const data = await auth_get(
-          `auth/user?user_id=${mainData.value[ActiveVersion.value].user_id}`,
+          `auth/user?user_id=${mainData.value.user_id}`,
         )
         user.value = data
         if (data == undefined) {
@@ -154,6 +156,17 @@ const pointsExpanded = ref({})
 const togglePoint = (pointId) => {
   pointsExpanded.value[pointId] = !pointsExpanded.value[pointId]
 }
+
+async function SendComment(){
+  if (myRating.value != 0){
+    try{
+      await auth_post("comments/create", {text: myText.value, rating: Math.ceil(myRating), answer: isAnswer.value, route_id: routeId, type: "public"})
+      router.push(`/card?id=${routeId}`)
+    } catch (err){
+      console.error(err)
+    }
+  }
+}
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
@@ -163,12 +176,12 @@ const togglePoint = (pointId) => {
         <div class="col-span-2 h-screen overflow-auto">
           <div class="overflow-hidden bg-slate-200">
             <img
-              v-if="mainData[ActiveVersion] || mainData[ActiveVersion].photo"
-              :src="api + 'files/download/' + mainData[ActiveVersion].photo"
+              v-if="mainData || mainData.photo"
+              :src="api + 'files/download/' + mainData.photo"
               class="place-self-center"
             />
             <img
-              v-if="!(mainData[ActiveVersion] || mainData[ActiveVersion].photo)"
+              v-if="!(mainData || mainData.photo)"
               src="/avatar.jpg"
               class="place-self-center"
             />
@@ -176,14 +189,14 @@ const togglePoint = (pointId) => {
               style="font-size: 1vw; color: #64748b; padding-right: 0.4vw; padding-top: 0.2vw"
               class="text-end"
             >
-              {{ mainData[ActiveVersion].created_at.slice(0, 10) }}
+              {{ mainData.created_at.slice(0, 10) }}
             </div>
             <div style="padding: 1vw; padding-top: 0%" class="drop-shadow-lg">
               <div
                 style="font-size: 2.5vw; padding: 1vw 0.2vw; padding-top: 0%"
                 class="drop-shadow-lg"
               >
-                {{ mainData[ActiveVersion].title }}
+                {{ mainData.title }}
               </div>
               <div
                 style="
@@ -200,7 +213,7 @@ const togglePoint = (pointId) => {
                   padding: 0vw 0.5vw;
                 "
               >
-                {{ mainData[ActiveVersion].description }}
+                {{ mainData.description }}
               </div>
 
               <div class="grid-cols-2 grid-rows-1 grid" style="margin: 1.5vw 0; margin-left: 0.2vw">
@@ -234,7 +247,7 @@ const togglePoint = (pointId) => {
                 </div>
                 <div class="grid items-center justify-end">
                   <vue3starRatings
-                    v-model="mainData[ActiveVersion].rating"
+                    v-model="mainData.rating"
                     :starSize="38"
                     starColor="#ff9800"
                     inactiveColor="#333333"
@@ -343,6 +356,21 @@ const togglePoint = (pointId) => {
               </div>
             </div>
           </div>
+          <div>
+            <p>Отзывы</p>
+        <div class="mx-10">
+          <textarea placeholder="Введите текст" class="w-full"></textarea>
+          <vue3starRatings
+                    v-model="roundedRating"
+                    :starSize="32"
+                    starColor="#ff9800"
+                    inactiveColor="#333333"
+                    :numberOfStars="5"
+                  />
+          <input type="checkbox" v-model="isAnswer" placeholder="Я прошел маршрут">
+          <button class="bg-slate-200" @click="SendComment">Оставить отзыв</button>
+        </div>
+      </div>
         </div>
         <div class="w-full h-screen col-span-3 z-0">
           <div ref="mapContainer" style="width: 100%; height: 100%"></div>
