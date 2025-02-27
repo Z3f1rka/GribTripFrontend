@@ -1,16 +1,23 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
-import { ref, watch, onMounted, reactive } from 'vue'
+import { ref, watch, onMounted, reactive, computed } from 'vue'
 import Card from '@/components/Main/Card.vue'
-import { auth_get } from '@/request'
+import { auth_get, auth_post } from '@/request'
 import { useRouter, useRoute } from 'vue-router'
 
 const id = useRoute()['query']['id']
 
+const gradientStartColor = computed(() => '#080E1A')
+
+let Active = ref(0)
 const router = useRouter()
 let user = ref(null)
 let auth = ref(false)
 let selfcards = reactive({
+  search: '',
+  array: [],
+})
+let historycards = reactive({
   search: '',
   array: [],
 })
@@ -29,8 +36,8 @@ async function f() {
     }
   } catch (err) {
     console.log(err)
-    router.push({ path: '/' })  
-    alert('Такого пользователя')
+    router.push({ path: '/' })
+    alert('Такого пользователя нет')
   }
 }
 f()
@@ -41,11 +48,13 @@ watch(
   },
 )
 
-const loading = ref(false)
+const loadingM = ref(false)
+const loadingH = ref(false)
 const rulefive = ref(false)
+const rulefiveH = ref(false)
 
 const fetchData = async () => {
-  loading.value = false
+  loadingM.value = false
 
   try {
     selfcards.array = await auth_get(`routes/all_user_routes?user_id=${id}`)
@@ -63,110 +72,390 @@ const fetchData = async () => {
       console.error('Ошибка при запросе к вторичному эндпоинту:', err1)
     }
   } finally {
-    loading.value = true
+    loadingM.value = true
     if (selfcards.array.length >= 5) {
       rulefive.value = true
       selfcards.array = selfcards.array.slice(0, 5)
     }
   }
 }
+const fetchDataH = async () => {
+  loadingH.value = false
+  try {
+    historycards.array = await auth_get(`history/routes/other_user?user_id=${id}`)
+    if (historycards.array == undefined) {
+      throw undefined
+    }
+  } catch (err) {
+    console.log(err)
+  } finally {
+    loadingH.value = true
+    if (historycards.array.length >= 5) {
+      rulefiveH.value = true
+      historycards.array = historycards.array.slice(0, 5)
+    }
+  }
+}
+
+const rulefiveF = ref(false)
+const loadingF = ref(false)
+const favoritescards = reactive({
+  search: '',
+  array: [],
+})
+
+const fetchDataI = async () => {
+  loadingF.value = false
+  try {
+    favoritescards.array = await auth_get(`auth/favorites/fetch/other?user_id=${id}`)
+    if (favoritescards.array == undefined) {
+      throw undefined
+    }
+  } catch (err) {
+    console.log(err)
+  } finally {
+    loadingF.value = true
+    if (favoritescards.array.length >= 5) {
+      rulefiveF.value = true
+      favoritescards.array = favoritescards.array.slice(0, 5)
+    }
+  }
+}
+async function NewRoute() {
+  try {
+    const newid = await auth_post(`routes/create`, { title: 'Новый маршрут' })
+    console.log(newid)
+    router.push(`/create_route?id=${newid}`)
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 onMounted(() => {
   fetchData()
 })
+onMounted(() => {
+  fetchDataH()
+})
+onMounted(() => {
+  fetchDataI()
+})
 </script>
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col overflow-hidden">
+    <div
+      style="
+        position: fixed;
+        background-image: url('/zve.jpg');
+        background-size: cover;
+        background-position: center center;
+        filter: blur(20px);
+        width: 150%;
+        height: 150%;
+        left: -50px;
+      "
+    ></div>
     <Header class="nav" :scroll="false" />
-    <div style="margin-top: 6vw" class="grid grid-cols-8">
-      <div class="col-span-3 text-center bg-gray-200" style="padding-top: 6vw; padding-bottom: 3vw">
-        <img
-          v-if="user && user.avatar"
-          :src="user.avatar"
-          class="rounded-full place-self-center"
-          style="width: 8vw; margin-bottom: 2vw"
-        />
-        <img
-          v-if="!(user && user.avatar)"
-          src="/avatar.jpg"
-          class="rounded-full place-self-center"
-          style="width: 8vw; margin-bottom: 2vw"
-        />
-        <div style="font-size: 2vw">
-          {{ user ? user.username : 'Имя пользователя отсутствует' }}
-        </div>
-        <div style="font-size: 1.5vw">
-          {{ user ? user.email : 'email пользователя отсутствует' }}
-        </div>
-      </div>
-      <div class="grid col-span-5">
-        <div>
+    <div class="flex-grow bg-gradient-to-b">
+      <div class="grid grid-cols-8 sticky">
+        <div class="col-span-3 text-center text-white">
           <div
-            class="content-center grid grid-rows-1 grid-cols-4 gap-2 items-center place-self-center"
-            style="width: 50vw; margin-right: 1vw; margin-top: 1vw"
+            style="
+              border-width: 1px;
+              border-color: white;
+              padding-top: max(12vw, 40px);
+              padding-bottom: 6vw;
+              margin-left: 4vw;
+            "
           >
-            <router-link class="col-span-2" :to="{ path: '/register' }"
-              ><div
-                class="items-center rounded-lg text-center"
-                style="
-                  padding-left: 1vw;
-                  padding-right: 1vw;
-                  padding-top: 0.7vw;
-                  padding-bottom: 0.7vw;
-                  font-size: 1.1vw;
-                  background-color: #c4d9d2;
-                "
-              >
-                Создать Маршрут
-              </div>
-            </router-link>
-            <router-link class="col-span-2" :to="{ path: '/login' }">
-              <div
-                class="items-center rounded-lg text-center"
-                style="
-                  padding-left: 1vw;
-                  padding-right: 1vw;
-                  padding-top: 0.7vw;
-                  padding-bottom: 0.7vw;
-                  font-size: 1.1vw;
-                  background-color: #c4d9d2;
-                "
-              >
-                Недавно оцененные
-              </div></router-link
-            >
-          </div>
-          <div v-if="selfcards.array" class="text-center" style="font-size: 1.4vw; margin-top: 1vw">
-            <div v-for="item in selfcards.array" :key="item.id">
-              <Card :card="item"></Card>
+            <img
+              v-if="user && user.avatar"
+              :src="user.avatar"
+              class="rounded-lg place-self-center"
+              style="width: 8vw; margin-bottom: 2vw"
+            />
+            <img
+              v-if="!(user && user.avatar)"
+              src="/avatar.jpg"
+              class="rounded-lg place-self-center"
+              style="width: 8vw; margin-bottom: 2vw"
+            />
+            <div style="font-size: 2vw">
+              {{ user ? user.username : 'Имя пользователя отсутствует' }}
             </div>
-            <div v-if="rulefive">
-              <router-link :to="{ path: '/my_routes', query: { id: id } }"
-                ><div
-                  class="items-center rounded-lg text-center"
+            <div style="font-size: 1.5vw">
+              {{ user ? user.email : 'email пользователя отсутствует' }}
+            </div>
+          </div>
+        </div>
+        <div class="grid col-span-5" style="margin-top: max(6vw, 40px)">
+          <div>
+            <div
+              class="content-center grid grid-rows-1 grid-cols-10 items-center place-self-center text-white select-none"
+              style="width: 50vw; margin-top: 1vw"
+            >
+              <div></div>
+              <div class="col-span-7 justify-center flex">
+                <div
+                  @click="Active = 0"
+                  class="rounded-l-lg inline-block cursor-pointer"
                   style="
-                    margin-left: 1vw;
-                    margin-right: 1vw;
-                    margin-top: 0.7vw;
-                    margin-bottom: 0.7vw;
-                    font-size: 1vw;
-                    background-color: #c4d9d2;
+                    padding-left: 1.5vw;
+                    padding-right: 1.5vw;
+                    padding-top: 0.7vw;
+                    padding-bottom: 0.7vw;
+                    font-size: 1.1vw;
+                    border-width: 1px;
+                    transition:
+                      background-color 0.3s ease,
+                      color 0.3s ease;
+                  "
+                  :style="{
+                    backgroundColor: Active === 0 ? 'white' : '',
+                    color: Active === 0 ? 'black' : 'white',
+                  }"
+                >
+                  Мои маршруты
+                </div>
+                <div
+                  class="inline-block cursor-pointer"
+                  @click="Active = 1"
+                  style="
+                    padding-left: 1.5vw;
+                    padding-right: 1.5vw;
+                    padding-top: 0.7vw;
+                    padding-bottom: 0.7vw;
+                    font-size: 1.1vw;
+                    border-width: 1px;
+                    transition:
+                      background-color 0.3s ease,
+                      color 0.3s ease;
+                  "
+                  :style="{
+                    backgroundColor: Active === 1 ? 'white' : '',
+                    color: Active === 1 ? 'black' : 'white',
+                  }"
+                >
+                  Избранные
+                </div>
+                <div
+                  class="rounded-r-lg cursor-pointer"
+                  @click="Active = 2"
+                  style="
+                    padding-left: 1.5vw;
+                    padding-right: 1.5vw;
+                    padding-top: 0.7vw;
+                    padding-bottom: 0.7vw;
+                    font-size: 1.1vw;
+                    border-width: 1px;
+                    transition: 0.3s ease;
+                  "
+                  :style="{
+                    backgroundColor: Active === 2 ? 'white' : '',
+                    color: Active === 2 ? 'black' : 'white',
+                  }"
+                >
+                  Оцененные
+                </div>
+              </div>
+              <div class="col-span-1 flex justify-center" @click="NewRoute()">
+                <div
+                  class="rounded-lg text-center cursor-pointer plus-button-style"
+                  style="
+                    padding-left: 1vw;
+                    padding-right: 1vw;
+                    padding-top: 0.7vw;
+                    padding-bottom: 0.7vw;
+                    font-size: 1.1vw;
+                    border-width: 1px;
                   "
                 >
-                  Все маршруты
+                  +
                 </div>
-              </router-link>
+              </div>
             </div>
-          </div>
-          <div
-            v-if="!selfcards.array"
-            class="text-center"
-            style="font-size: 1.4vw; margin-top: 1vw"
-          >
-            маршрутов нет
+            <div
+              v-if="loadingM && Active === 0"
+              class="text-white flex justify-center items-center flex-wrap container content-box"
+              style="
+                margin-right: 1vw;
+                margin-left: 0.3vw;
+                margin-bottom: 3vw;
+                transition: 0.3s ease;
+              "
+            >
+              <div v-for="item in selfcards.array" :key="item.id">
+                <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+                  <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                </router-link>
+              </div>
+              <div v-if="rulefive" class="flex container justify-center">
+                <router-link :to="{ path: '/my_routes', query: { id: id } }"
+                  ><div
+                    class="items-center rounded-lg text-center hover:bg-white hover:text-black"
+                    style="
+                      margin-top: 1vw;
+                      padding-left: 1vw;
+                      padding-right: 1vw;
+                      padding-top: 0.7vw;
+                      padding-bottom: 0.7vw;
+                      font-size: 1vw;
+                      border-width: 1px;
+                      transition: 0.3s ease;
+                    "
+                  >
+                    Все маршруты
+                  </div>
+                </router-link>
+              </div>
+            </div>
+            <transition name="fade" mode="out-in">
+              <div key="transition-wrapper" style="transition: 0.3s ease">
+                <div
+                  v-if="loadingH && Active === 2"
+                  class="text-white flex justify-center items-center flex-wrap content-box"
+                  style="
+                    margin-right: 1vw;
+                    margin-left: 0.3vw;
+                    margin-bottom: 3vw;
+                    transition: 0.3s ease;
+                  "
+                >
+                  <div v-for="item in historycards.array" :key="item.id">
+                    <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+                      <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                    </router-link>
+                  </div>
+                  <div v-if="rulefiveH" class="flex container justify-center">
+                    <router-link :to="{ path: '/history', query: { id: item.user_id } }"
+                      ><div
+                        class="items-center rounded-lg text-center hover:bg-white hover:text-black"
+                        style="
+                          margin-top: 1vw;
+                          padding-left: 1vw;
+                          padding-right: 1vw;
+                          padding-top: 0.7vw;
+                          padding-bottom: 0.7vw;
+                          font-size: 1vw;
+                          border-width: 1px;
+                          transition: 0.1s ease;
+                        "
+                      >
+                        Все маршруты
+                      </div>
+                    </router-link>
+                  </div>
+                </div>
+                <div
+                  v-if="loadingF && Active === 1"
+                  class="text-white flex justify-center items-center flex-wrap content-box"
+                  style="
+                    margin-right: 1vw;
+                    margin-left: 0.3vw;
+                    margin-bottom: 3vw;
+                    transition: 0.3s ease;
+                  "
+                >
+                  <div v-for="item in favoritescards.array" :key="item.id">
+                    <router-link :to="{ path: '/card', query: { id: item.route_id } }">
+                      <Card
+                        :card="item.route"
+                        style="border-width: 1px; border-color: white"
+                      ></Card>
+                    </router-link>
+                  </div>
+                  <div v-if="rulefiveF" class="flex container justify-center">
+                    <router-link :to="{ path: '/history', query: { id: id } }"
+                      ><div
+                        class="items-center rounded-lg text-center hover:bg-white hover:text-black"
+                        style="
+                          margin-top: 1vw;
+                          padding-left: 1vw;
+                          padding-right: 1vw;
+                          padding-top: 0.7vw;
+                          padding-bottom: 0.7vw;
+                          font-size: 1vw;
+                          border-width: 1px;
+                          transition: 0.1s ease;
+                        "
+                      >
+                        Все маршруты
+                      </div>
+                    </router-link>
+                  </div>
+                </div>
+                <div
+                  v-if="favoritescards.array.length === 0 && Active === 1"
+                  class="text-center text-white content-box"
+                  style="font-size: 1.4vw; margin-top: 2vw"
+                >
+                  Нет избранных маршрутов
+                </div>
+                <div
+                  v-if="selfcards.array.length === 0 && Active === 0"
+                  class="text-center text-white content-box"
+                  style="font-size: 1.4vw; margin-top: 2vw"
+                >
+                  Нет моих маршрутов
+                </div>
+                <div
+                  v-if="historycards.array.length === 0 && Active === 2"
+                  class="text-center text-white content-box"
+                  style="font-size: 1.4vw; margin-top: 2vw"
+                >
+                  Нет оцененнных маршрутов
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+<style scoped>
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: opacity 0.3s ease-out;
+}
+
+.fade-enter-to {
+  opacity: 1;
+}
+
+.fade-leave-from {
+  opacity: 1;
+}
+
+.fade-leave-active {
+  transition: opacity 0.3s ease-in;
+  position: absolute; /* Важно для корректного удаления */
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+.plus-button-style {
+  padding-left: 1vw;
+  padding-right: 1vw;
+  padding-top: 0.7vw;
+  padding-bottom: 0.7vw;
+  font-size: 1.1vw;
+  border-width: 1px;
+  border-style: solid; /* Обязательно укажите style, чтобы border отображался */
+  border-color: white; /* Исходный цвет рамки */
+  color: white;
+  transition:
+    border-color 0.3s ease,
+    transform 0.2s ease; /* Добавлена transition */
+  /* transform: scale(1); /*  Добавьте это, если хотите гарантировать начальный масштаб */
+}
+
+.plus-button-style:hover {
+  border-color: #007bff; /* Цвет рамки при наведении (пример: синий) */
+  color: #007bff;
+}
+</style>

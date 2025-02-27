@@ -9,7 +9,7 @@ import router from '../router'
 import { useRouter, useRoute } from 'vue-router'
 
 // В комментах указания для создания из этого страницы отображения и (!) то что тут + добавь хедер и получение айди из адреса
-const routeId = useRoute()['query']['id'] // (!) сам айдишник
+const routeId = useRoute()['query']['id']
 const mapContainer = ref()
 const api_key = import.meta.env.VITE_GRAPHHOPPER_API_KEY
 const map = ref()
@@ -37,7 +37,7 @@ onMounted(() => {
       success.value = true
       title.value = mainData.value[0].title
       text.value = mainData.value[0].description
-      if (mainData.value[0].photo != 'string') {
+      if (mainData.value[0].photo != 'string' && mainData.value[0].photo != null) {
         imageUrl.value =
           import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo
       }
@@ -132,8 +132,10 @@ async function fetchData() {
   }
 }
 
+let savedone = ref(false)
 // Убираешь от этой строчки
 async function Save() {
+  savedone.value = false
   let content_blocks = []
   for (let i = 0; i <= points.value.length - 1; i++) {
     let p = points.value[i]
@@ -159,7 +161,6 @@ async function Save() {
           )),
         )
       }
-      console.log(data)
     }
     content_blocks.push({
       text: p.text,
@@ -193,20 +194,24 @@ async function Save() {
     photo: image,
     main_route_id: routeId,
   }
-  console.log(data)
   auth_post('routes/update', data)
+  savedone.value = true
 }
 
 async function Public() {
-  try {
-    let data = await auth_post(`routes/publication_request?route_id=${routeId}`)
-    if (data == undefined) {
-      throw undefined
-    }
-    router.push(`/profile?id=${routeId}`)
-  } catch (err) {
-    console.error(err)
-  }
+  Save()
+  watch(
+    () => savedone.value,
+    async () => {
+      try {
+        await auth_post(`routes/publication_request?route_id=${routeId}`)
+        let profile = await auth_get(`auth/me`)
+        router.push(`/profile?id=${profile.id}`)
+      } catch (err) {
+        console.log(err)
+      }
+    },
+  )
 }
 
 function AddPoint() {
@@ -368,7 +373,12 @@ function DeletePoint(id) {
                   class="object-cover h-full w-full"
                   style=""
                 />
-                <img :src="NoImage" v-else class="object-cover h-full w-full" />
+                <img
+                  :src="NoImage"
+                  v-else
+                  class="object-cover h-full w-full"
+                  style="object-fit: contain"
+                />
               </label>
             </div>
             <div style="margin-top: 1vw" class="inline-flex">
