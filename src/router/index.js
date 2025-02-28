@@ -10,6 +10,8 @@ import CardView from '@/views/CardView.vue'
 import ModerView from '@/views/ModerView.vue'
 import FavoritesView from '@/views/FavoritesView.vue'
 import VersionsView from '@/views/VersionsView.vue'
+import CheckView from '@/views/CheckView.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,6 +66,11 @@ const router = createRouter({
       path: '/versions',
       name: 'versions',
       component: VersionsView,
+    },
+    {
+      path: '/check',
+      name: 'check',
+      component: CheckView,
     },
   ],
 })
