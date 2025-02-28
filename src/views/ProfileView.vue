@@ -313,13 +313,8 @@ onMounted(() => {
             >
               <div class="text-white inline-grid grid-cols-2">
                 <div v-for="item in selfcards.array" :key="item.id">
-                  <div v-if="item.status == 'private'">
+                  <div>
                     <router-link :to="{ path: '/create_route', query: { id: item.main_route_id } }">
-                      <Card :card="item" style="border-width: 1px; border-color: white"></Card>
-                    </router-link>
-                  </div>
-                  <div v-else>
-                    <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
                       <Card :card="item" style="border-width: 1px; border-color: white"></Card>
                     </router-link>
                   </div>
