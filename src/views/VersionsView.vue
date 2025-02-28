@@ -32,6 +32,8 @@ const myRating = ref(0)
 const isAnswer = ref(false)
 const comments = ref([])
 const canComment = ref(true)
+const activeId = ref(0)
+const visibleVersion = ref(0)
 
 onMounted(() => {
   fetchData()
@@ -39,14 +41,20 @@ onMounted(() => {
     () => load.value,
     () => {
       success.value = true
-      title.value = mainData.value.title
-      text.value = mainData.value.description
-      if (mainData.value.photo != 'undefined' && mainData.value.photo != null) {
+      title.value = mainData.value[activeId.value].title
+      text.value = mainData.value[activeId.value].description
+      visibleVersion.value = mainData.value.length
+      if (
+        mainData.value[activeId.value].photo != 'undefined' &&
+        mainData.value[activeId.value].photo != null
+      ) {
         imageUrl.value =
-          import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value.photo
+          import.meta.env.VITE_FILES_API_URL +
+          'files/download/' +
+          mainData.value[activeId.value].photo
       }
-      if (mainData.value.content_blocks != null) {
-        mainData.value.content_blocks.forEach((item) => {
+      if (mainData.value[activeId.value].content_blocks != null) {
+        mainData.value[activeId.value].content_blocks.forEach((item) => {
           let images = []
           item.images.forEach((image) => {
             images.push({
@@ -104,7 +112,7 @@ onMounted(() => {
 
 let user = ref(null)
 let loading = ref(false)
-let ActiveVersion = ref(0)
+
 const roundedRating = computed({
   get: () => Math.ceil(myRating.value),
   set: (newValue) => {
@@ -115,14 +123,15 @@ const roundedRating = computed({
 const fetchData = async () => {
   loading.value = false
   try {
-    mainData.value = await auth_get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
+    console.log(routeId)
+    mainData.value = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
     if (mainData.value == undefined) {
       throw undefined
     }
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
     try {
-      mainData.value = await auth_get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
+      mainData.value = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
       if (mainData.value == undefined) {
         throw undefined
       }
@@ -132,7 +141,8 @@ const fetchData = async () => {
   } finally {
     async function f() {
       try {
-        const data = await auth_get(`auth/user?user_id=${mainData.value.user_id}`)
+        console.log(mainData.value[activeId.value])
+        const data = await auth_get(`auth/user?user_id=${mainData.value[activeId.value].user_id}`)
         user.value = data
         if (data == undefined) {
           throw undefined
@@ -208,27 +218,56 @@ const togglePoint = (pointId) => {
   pointsExpanded.value[pointId] = !pointsExpanded.value[pointId]
 }
 
-async function SendComment() {
-  if (myRating.value != 0) {
-    try {
-      console.log({
-        text: myText.value,
-        rating: Math.ceil(myRating.value),
-        answer: isAnswer.value,
-        route_id: routeId,
-        type: 'public',
+function ReVersion() {
+  title.value = ''
+  text.value = ''
+  points.value = []
+  title.value = mainData.value[activeId.value].title
+  text.value = mainData.value[activeId.value].description
+  if (
+    mainData.value[activeId.value].photo != 'undefined' &&
+    mainData.value[activeId.value].photo != null
+  ) {
+    imageUrl.value =
+      import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[activeId.value].photo
+  }
+  if (mainData.value[activeId.value].content_blocks != null) {
+    mainData.value[activeId.value].content_blocks.forEach((item) => {
+      let images = []
+      item.images.forEach((image) => {
+        images.push({
+          file: null,
+          fileUrl: import.meta.env.VITE_FILES_API_URL + 'files/download/' + image,
+        })
       })
-      await auth_post('comments/create', {
-        text: myText.value,
-        rating: Math.ceil(myRating.value),
-        answer: isAnswer.value,
-        route_id: routeId,
-        type: 'public',
+      points.value.push({
+        lat: item.geoposition[0],
+        lon: item.geoposition[1],
+        id: count,
+        text: item.text,
+        position: item.position,
+        oldPosition: item.position,
+        title: item.title,
+        images: images,
       })
-      router.push(`/card?id=${routeId}`)
-    } catch (err) {
-      console.error(err)
-    }
+      count++
+    })
+  }
+}
+
+function versionplus() {
+  if (activeId.value != 0) {
+    activeId.value--
+    visibleVersion.value++
+    ReVersion()
+  }
+}
+
+function versionminus() {
+  if (activeId.value != mainData.value.length - 1) {
+    activeId.value++
+    visibleVersion.value--
+    ReVersion()
   }
 }
 </script>
@@ -240,8 +279,8 @@ async function SendComment() {
         <div class="col-span-2 h-screen overflow-auto">
           <div class="overflow-hidden bg-slate-200">
             <img
-              v-if="mainData || mainData.photo"
-              :src="api + 'files/download/' + mainData.photo"
+              v-if="mainData || mainData[activeId].photo"
+              :src="imageUrl"
               class="place-self-center"
             />
             <img v-if="!(mainData || mainData.photo)" src="/avatar.jpg" class="place-self-center" />
@@ -249,14 +288,14 @@ async function SendComment() {
               style="font-size: 1vw; color: #64748b; padding-right: 0.4vw; padding-top: 0.2vw"
               class="text-end"
             >
-              {{ mainData.created_at.slice(0, 10) }}
+              {{ mainData[activeId].created_at.slice(0, 10) }}
             </div>
             <div style="padding: 1vw; padding-top: 0%" class="drop-shadow-lg">
               <div
                 style="font-size: 2.5vw; padding: 1vw 0.2vw; padding-top: 0%"
                 class="drop-shadow-lg"
               >
-                {{ mainData.title }}
+                {{ title }}
               </div>
               <div
                 style="
@@ -273,7 +312,7 @@ async function SendComment() {
                   padding: 0vw 0.5vw;
                 "
               >
-                {{ mainData.description }}
+                {{ text }}
               </div>
 
               <div class="grid-cols-2 grid-rows-1 grid" style="margin: 1.5vw 0; margin-left: 0.2vw">
@@ -314,6 +353,11 @@ async function SendComment() {
                     :numberOfStars="5"
                     :disableClick="true"
                   />
+                </div>
+                <div class="grid grid-cols-5 mt-5">
+                  <button class="col-span-2 bg-white" @click="versionminus">Предыдущая версия</button>
+                  <div class="px-10">{{visibleVersion}}</div>
+                  <button class="col-span-2" @click="versionplus">Следующая версия</button>
                 </div>
               </div>
             </div>
@@ -424,93 +468,6 @@ async function SendComment() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <p>Отзывы</p>
-            <div class="mx-10" v-if="canComment">
-              <textarea placeholder="Введите текст" class="w-full" v-model="myText"></textarea>
-              <vue3starRatings
-                v-model="roundedRating"
-                :starSize="32"
-                starColor="#ff9800"
-                inactiveColor="#333333"
-                :numberOfStars="5"
-              />
-              <input type="checkbox" v-model="isAnswer" placeholder="Я прошел маршрут" />
-              <button class="bg-slate-200" @click="SendComment">Оставить отзыв</button>
-            </div>
-            <div>
-              <div v-for="comment in comments" :key="comment.id" class="border-2">
-                <div
-                  class="grid-cols-3 grid-rows-1 grid"
-                  style="margin: 1.5vw 0; margin-left: 0.2vw"
-                >
-                  <div class="inline-flex">
-                    <a
-                      v-if="comment.user.avatar != null"
-                      href="#"
-                      class="select-none flex cursor-default"
-                      role="menuitem"
-                      tabindex="-1"
-                      id="menu-item-0"
-                      ><img :src="comment.user.avatar" class="rounded-full" style="width: 4vw" />
-                    </a>
-                    <a
-                      v-if="comment.user.avatar == null"
-                      href="#"
-                      class="select-none flex cursor-default"
-                      role="menuitem"
-                      tabindex="-1"
-                      id="menu-item-0"
-                      ><img src="/avatar.jpg" class="rounded-full" style="width: 4vw" />
-                    </a>
-                    <div class="grid-rows-2">
-                      <div style="font-size: 1.5vw; padding: 0 0 0 0.7vw">
-                        {{ comment.user.username }}
-                      </div>
-                      <div
-                        style="font-size: 0.9vw; padding: 0 0 0 0.7vw"
-                        class="text-indigo-700"
-                        v-if="comment.user.role == 'admin' || comment.user.role == 'moderator'"
-                      >
-                        Модератор
-                      </div>
-                    </div>
-                  </div>
-                  <div v-if="comment.answer">Прошел маршрут!</div>
-                  <div v-else></div>
-                  <div class="grid items-center justify-end" v-if="comment.type == 'public'">
-                    <vue3starRatings
-                      v-model="comment.rating"
-                      :starSize="32"
-                      starColor="#ff9800"
-                      inactiveColor="#333333"
-                      :numberOfStars="5"
-                      :disableClick="true"
-                    />
-                  </div>
-                </div>
-                <div
-                  style="
-                    font-size: 1.2vw;
-                    min-height: 6vw;
-                    width: 100%;
-                    overflow: auto;
-                    border: none;
-                    outline: none;
-                    border-radius: 5px;
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    background-color: white;
-                    padding: 0vw 0.5vw;
-                    margin-top: 1vw;
-                    padding-left: 0.3vw;
-                  "
-                >
-                  {{ comment.text }}
                 </div>
               </div>
             </div>
