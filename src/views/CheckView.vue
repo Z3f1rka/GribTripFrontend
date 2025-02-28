@@ -220,7 +220,7 @@ async function SendReject() {
         route_id: mainData.value.main_route_id,
         type: 'private',
       })
-      await auth_post(`admin/reject_route?route_id=${routeId}`, {
+      await auth_post(`admin/reject_route?route_id`, {
         text: myText.value,
         answer: false,
         route_id: mainData.value.main_route_id,
@@ -241,12 +241,7 @@ async function SendApprove() {
       route_id: mainData.value.main_route_id,
       type: 'private',
     })
-    await auth_post(`admin/approve_route?route_id=${routeId}`, {
-      text: '',
-      answer: false,
-      route_id: mainData.value.main_route_id,
-      type: 'private',
-    })
+    await auth_post(`admin/approve_route?route_id=${routeId}`)
     router.push(`/card?id=${routeId}`)
   } catch (err) {
     console.error(err)
