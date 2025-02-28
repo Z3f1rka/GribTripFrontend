@@ -183,35 +183,33 @@ onMounted(() => {
               style="width: 12vw"
             />
           </div>
-          <div class="col-span-4">
-            <div class="inline-flex">
-              <div>
-                <div style="font-size: 4vw">
-                  {{ user ? user.username : 'Имя пользователя отсутствует' }}
-                </div>
-                <div style="font-size: 1.5vw" class="text-slate-700">
-                  {{ user ? user.email : 'email пользователя отсутствует' }}
-                </div>
+          <div class="col-span-4 flex justify-between">
+            <div class="text-left grid">
+              <div style="font-size: 4vw">
+                {{ user ? user.username : 'Имя пользователя отсутствует' }}
               </div>
-              <div style="margin-top: 1vw; margin-left: 22vw" class="inline-flex">
-                <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
-                  <div style="margin-bottom: 1vw; font-size: 2.5vw">
-                    {{ selfcards.array.length }}
-                  </div>
-                  <div>Мои маршруты</div>
+              <div style="font-size: 1.5vw" class="text-slate-700">
+                {{ user ? user.email : 'email пользователя отсутствует' }}
+              </div>
+            </div>
+            <div style="margin-top: 1vw; margin-right: 3vw" class="text-right flex">
+              <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
+                <div style="margin-bottom: 1vw; font-size: 2.5vw">
+                  {{ selfcards.array.length }}
                 </div>
-                <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
-                  <div style="margin-bottom: 1vw; font-size: 2.5vw">
-                    {{ favoritescards.array.length }}
-                  </div>
-                  <div>Избранные</div>
+                <div>Мои маршруты</div>
+              </div>
+              <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
+                <div style="margin-bottom: 1vw; font-size: 2.5vw">
+                  {{ favoritescards.array.length }}
                 </div>
-                <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
-                  <div style="margin-bottom: 1vw; font-size: 2.5vw">
-                    {{ historycards.array.length }}
-                  </div>
-                  <div>Отмеченные</div>
+                <div>Избранные</div>
+              </div>
+              <div style="text-align: center; font-size: 1.5vw; margin: 1vw">
+                <div style="margin-bottom: 1vw; font-size: 2.5vw">
+                  {{ historycards.array.length }}
                 </div>
+                <div>Отмеченные</div>
               </div>
             </div>
           </div>
