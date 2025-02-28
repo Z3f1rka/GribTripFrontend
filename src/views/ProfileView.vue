@@ -21,6 +21,9 @@ let historycards = reactive({
   search: '',
   array: [],
 })
+const mainImage = ref(null)
+const loading = ref(false)
+const imageUrl = ref('')
 
 if (localStorage.getItem('refresh_token') == null) {
   router.push({ path: '/login' })
@@ -34,6 +37,9 @@ async function f() {
     if (data == undefined) {
       throw undefined
     }
+    if (user.value.photo != undefined && user.value.photo != null && user.value.photo != '') {
+      imageUrl.value = import.meta.env.VITE_FILES_API_URL + 'files/download/' + user.value.photo
+    }
   } catch (err) {
     console.log(err)
     router.push({ path: '/' })
@@ -45,6 +51,33 @@ watch(
   () => user.value,
   () => {
     auth.value = true
+  },
+)
+
+async function AddImage(event) {
+  loading.value = false
+  mainImage.value = event.target.files[0]
+  console.log(mainImage)
+  if (
+    mainImage.value != null &&
+    imageUrl.value != import.meta.env.VITE_FILES_API_URL + 'files/download/' + user.value.photo
+  ) {
+    let formData = new FormData()
+    formData.append('file', mainImage.value)
+    imageUrl.value = await auth_post(
+      'files/upload',
+      formData,
+      import.meta.env.VITE_FILES_API_URL,
+      'multipart/form-data',
+    )
+    await auth_post('auth/update', { avatar: imageUrl.value })
+    imageUrl.value = import.meta.env.VITE_FILES_API_URL + 'files/download/' + imageUrl.value
+  }
+}
+watch(
+  () => imageUrl.value,
+  () => {
+    loading.value = true
   },
 )
 
@@ -172,7 +205,7 @@ onMounted(() => {
           <div class="grid col-span-1 justify-center text-center">
             <img
               v-if="user && user.avatar"
-              :src="user.avatar"
+              :src="imageUrl"
               class="rounded-lg"
               style="width: 12vw"
             />
