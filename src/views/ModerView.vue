@@ -32,10 +32,10 @@ watch(
 
 async function f() {
   try {
-    const data = await auth_get('history/routes?user_id')
+    const data = await auth_get('admin/get_publication_requests')
     selfcards.array = data
   } catch (error) {
-    console.error('Ошибка при загрузке данных пользователя:', error)
+    console.error('Ошибка при загрузке данных', error)
   }
 }
 
@@ -90,7 +90,7 @@ onMounted(async () => {
         style="margin-right: 1vw; margin-left: 0.3vw; margin-bottom: 3vw; transition: 0.3s ease"
       >
         <div v-for="item in selfcards.array" :key="item.id">
-          <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+          <router-link :to="{ path: '/check', query: { id: item.main_route_id } }">
             <Card :card="item" style="border-width: 1px; border-color: white"></Card>
           </router-link>
         </div>
