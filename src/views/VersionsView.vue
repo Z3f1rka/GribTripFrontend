@@ -278,6 +278,37 @@ function versionminus() {
       <div v-if="load" style="margin-top: max(6vw, 50px)" class="grid grid-cols-5">
         <div class="col-span-2 h-screen overflow-auto">
           <div class="overflow-hidden bg-slate-200">
+            <div class="flex justify-between col-span-2 text-center" style="margin: 2vw">
+              <div
+                class="rounded-lg cursor-pointer text-white bg-indigo-500 active:scale-95"
+                @click="versionminus"
+                style="
+                  padding-bottom: 0.5vw;
+                  padding-top: 0.5vw;
+                  padding-left: 0.8vw;
+                  padding-right: 0.8vw;
+                  font-size: 1.1vw;
+                  transition: transform 0.1s ease;
+                "
+              >
+                Предыдущая версия
+              </div>
+              <div style="font-size: 2vw">{{ visibleVersion }}</div>
+              <div
+                class="rounded-lg cursor-pointer text-white bg-indigo-500 active:scale-95"
+                @click="versionplus"
+                style="
+                  padding-bottom: 0.5vw;
+                  padding-top: 0.5vw;
+                  padding-left: 0.8vw;
+                  padding-right: 0.8vw;
+                  font-size: 1.1vw;
+                  transition: transform 0.1s ease;
+                "
+              >
+                Следующая версия
+              </div>
+            </div>
             <img
               v-if="mainData || mainData[activeId].photo"
               :src="imageUrl"
@@ -353,11 +384,6 @@ function versionminus() {
                     :numberOfStars="5"
                     :disableClick="true"
                   />
-                </div>
-                <div class="grid grid-cols-5 mt-5">
-                  <button class="col-span-2 bg-white" @click="versionminus">Предыдущая версия</button>
-                  <div class="px-10">{{visibleVersion}}</div>
-                  <button class="col-span-2" @click="versionplus">Следующая версия</button>
                 </div>
               </div>
             </div>
