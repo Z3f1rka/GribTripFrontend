@@ -32,7 +32,7 @@ const handleMouseLeave = () => {
     @mouseleave="handleMouseLeave"
   >
     <img
-      v-if="data.card.photo != 'string' && data.card.photo != null"
+      v-if="data.card.photo != undefined && data.card.photo != null && data.card.photo != ''"
       :src="api + 'files/download/' + data.card.photo"
       class="w-full h-full object-cover"
     />
