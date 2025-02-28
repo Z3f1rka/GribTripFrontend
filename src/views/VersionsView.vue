@@ -252,7 +252,13 @@ function ReVersion() {
       })
       count++
     })
+    ReRoute()
   }
+}
+
+function ReRoute() {
+  points.value.sort((a, b) => parseFloat(a.position) - parseFloat(b.position))
+  control.value.setWaypoints(points.value.map((p) => L.latLng(p.lat, p.lon)))
 }
 
 function versionplus() {
