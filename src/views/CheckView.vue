@@ -33,7 +33,6 @@ const comments = ref([])
 const canComment = ref(true)
 const activeId = ref(0)
 
-
 onMounted(() => {
   fetchData()
   watch(
@@ -42,14 +41,9 @@ onMounted(() => {
       success.value = true
       title.value = mainData.value.title
       text.value = mainData.value.description
-      if (
-        mainData.value.photo != 'undefined' &&
-        mainData.value.photo != null
-      ) {
+      if (mainData.value.photo != 'undefined' && mainData.value.photo != null) {
         imageUrl.value =
-          import.meta.env.VITE_FILES_API_URL +
-          'files/download/' +
-          mainData.value.photo
+          import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value.photo
       }
       if (mainData.value.content_blocks != null) {
         mainData.value.content_blocks.forEach((item) => {
@@ -128,7 +122,9 @@ const fetchData = async () => {
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
     try {
-      mainData.value = await auth_get(`admin/get_publication_request_by_route_id?route_id=${routeId}`)
+      mainData.value = await auth_get(
+        `admin/get_publication_request_by_route_id?route_id=${routeId}`,
+      )
       if (mainData.value == undefined) {
         throw undefined
       }
@@ -237,26 +233,25 @@ async function SendReject() {
   }
 }
 
-async function SendApprove(){
-    try {
-      console.log({
-        text: "",
-        answer: false,
-        route_id: mainData.value.main_route_id,
-        type: 'private',
-      })
-      await auth_post(`admin/approve_route?route_id=${routeId}`, {
-        text: "",
-        answer: false,
-        route_id: mainData.value.main_route_id,
-        type: 'private',
-      })
-      router.push(`/card?id=${routeId}`)
-    } catch (err) {
-      console.error(err)
-    }
+async function SendApprove() {
+  try {
+    console.log({
+      text: '',
+      answer: false,
+      route_id: mainData.value.main_route_id,
+      type: 'private',
+    })
+    await auth_post(`admin/approve_route?route_id=${routeId}`, {
+      text: '',
+      answer: false,
+      route_id: mainData.value.main_route_id,
+      type: 'private',
+    })
+    router.push(`/card?id=${routeId}`)
+  } catch (err) {
+    console.error(err)
+  }
 }
-
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
@@ -265,11 +260,7 @@ async function SendApprove(){
       <div v-if="load" style="margin-top: max(6vw, 50px)" class="grid grid-cols-5">
         <div class="col-span-2 h-screen overflow-auto">
           <div class="overflow-hidden bg-slate-200">
-            <img
-              v-if="mainData || mainData.photo"
-              :src="imageUrl"
-              class="place-self-center"
-            />
+            <img v-if="mainData || mainData.photo" :src="imageUrl" class="place-self-center" />
             <img v-if="!(mainData || mainData.photo)" src="/avatar.jpg" class="place-self-center" />
             <div
               style="font-size: 1vw; color: #64748b; padding-right: 0.4vw; padding-top: 0.2vw"
@@ -455,12 +446,47 @@ async function SendApprove(){
             </div>
           </div>
           <div>
-            <div>
-                <textarea placeholder="Напишите причину отклонения" v-model="myText"></textarea>
-                <div>
-                <button @click="SendApprove">Одобрить</button>
-                <button @click="SendReject">Отклонить</button>
+            <div class="p-3">
+                <textarea
+                placeholder="Введите причину отклонения"
+                class="w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style="min-height: 5vw; font-size: 1.2vw; padding: 0.3vw"
+                v-model="myText"
+              ></textarea>
+              <div>
+                <div class="flex mt-4">
+                  <div
+                    class="rounded-lg cursor-pointer text-white bg-indigo-600 active:scale-95 text-center ml-4"
+                    @click="SendReject"
+                    style="
+                      padding-bottom: 0.5vw;
+                      padding-top: 0.5vw;
+                      padding-left: 0.8vw;
+                      padding-right: 0.8vw;
+                      font-size: 1.1vw;
+                      transition: transform 0.1s ease;
+                      width: 15vw;
+                    "
+                  >
+                    Отклонить
+                  </div>
+                  <div
+                    class="rounded-lg cursor-pointer text-white bg-indigo-600 active:scale-95 text-center ml-4"
+                    @click="SendApprove"
+                    style="
+                      padding-bottom: 0.5vw;
+                      padding-top: 0.5vw;
+                      padding-left: 0.8vw;
+                      padding-right: 0.8vw;
+                      font-size: 1.1vw;
+                      transition: transform 0.1s ease;
+                      width: 15vw;
+                    "
+                  >
+                    Одобрить
+                  </div>
                 </div>
+              </div>
             </div>
           </div>
         </div>
