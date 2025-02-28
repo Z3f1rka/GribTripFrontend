@@ -177,19 +177,19 @@ const fetchData = async () => {
                 }
               } catch (err) {
                 console.log(err)
-                canComment.value = false
+                canComment.value = false // не работает
               } finally {
+                console.log(me)
                 if (me != undefined) {
                   if (me.id == user.value.id) {
-                    canComment.value == false
+                    canComment.value = false
                   } else {
                     if (comments.value != [] && comments.value != undefined) {
                       comments.value.forEach((comment) => {
                         ids.push(comment.user.id)
                       })
                       if (ids.includes(me.id)) {
-                        console.log(false)
-                        canComment.value == false
+                        canComment.value = false
                       }
                     }
                   }
@@ -197,12 +197,6 @@ const fetchData = async () => {
               }
             }
             validateMe()
-            watch(
-              () => canComment.value,
-              () => {
-                console.log(1)
-              },
-            )
           },
         )
       },
