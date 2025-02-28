@@ -37,7 +37,7 @@ onMounted(() => {
       success.value = true
       title.value = mainData.value[0].title
       text.value = mainData.value[0].description
-      if (mainData.value[0].photo != null && mainData.value[0].photo != null) {
+      if (mainData.value[0].photo != undefined && mainData.value[0].photo != null) {
         imageUrl.value =
           import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo
       }
@@ -414,6 +414,24 @@ function DeletePoint(id) {
               >
                 Отправить
               </div>
+              <router-link :to="{ path: '/versions', query: { id: routeId } }"
+                      >
+              <div
+                class="rounded-lg cursor-pointer text-slate-900 active:scale-95 self-end "
+                style="
+                  padding-bottom: 0.5vw;
+                  padding-top: 0.5vw;
+                  padding-left: 0.8vw;
+                  padding-right: 0.8vw;
+                  margin-left: 1vw;
+                  font-size: 1.1vw;
+                  background-color: #ffff;
+                  transition: transform 0.1s ease;
+                "
+              >
+                Версии
+              </div>
+            </router-link>
             </div>
           </div>
           <div
