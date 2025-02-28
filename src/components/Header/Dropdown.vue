@@ -78,18 +78,37 @@ let data = defineProps({
         </a></router-link
       >
       <router-link :to="{ path: '/moder', query: { id: data.id } }">
-      <a
-        v-if="data.role != 'user'"
-        href="#"
-        class="block DropDownElement"
-        style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
-        role="menuitem"
-        tabindex="-1"
-        id="menu-item-1"
-        ><div class="inline-flex items-center">
-          <img src="/moder.png" style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw" />Модерация
-        </div></a
-      ></router-link>
+        <a
+          v-if="data.role != 'user'"
+          href="#"
+          class="block DropDownElement"
+          style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
+          role="menuitem"
+          tabindex="-1"
+          id="menu-item-1"
+          ><div class="inline-flex items-center">
+            <img
+              src="/moder.png"
+              style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw"
+            />Модерация
+          </div></a
+        ></router-link
+      >
+      <router-link :to="{ path: '/register' }">
+        <a
+          v-if="data.role != 'user'"
+          href="#"
+          class="block DropDownElement"
+          style="padding-left: 1.05vw; padding-top: 0.8vw; padding-bottom: 0.8vw; font-size: 1.15vw"
+          role="menuitem"
+          tabindex="-1"
+          id="menu-item-1"
+          ><div class="inline-flex items-center">
+            <img src="/plus.png" style="width: 1.1vw; height: 1.1vw; margin-right: 0.6vw" />Создать
+            модератора
+          </div></a
+        ></router-link
+      >
       <router-link :to="{ path: '/my_routes', query: { id: data.id } }">
         <a
           href="#"
