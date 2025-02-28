@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
-import { ref, watch, onMounted, computed } from 'vue'
-import { auth_get, auth_post } from '@/request'
+import { ref, watch, onMounted, computed, onBeforeUnmount } from 'vue'
+import { auth_get, auth_post, auth_delete } from '@/request'
 import vue3starRatings from 'vue3-star-ratings'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
@@ -10,6 +10,7 @@ import '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
 import '/lrm-graphhopper-1.2.0.js'
 import router from '../router'
 import { useRoute } from 'vue-router'
+import { tr } from '@formkit/i18n'
 
 const routeId = useRoute()['query']['id']
 const mapContainer = ref()
@@ -202,6 +203,18 @@ const fetchData = async () => {
     )
   }
 }
+async function favor() {
+  try {
+    const data = await auth_get(`auth/favorites/fetch/other?user_id=${routeId}`)
+    console.log(data.length)
+    if (data.length != 0) {
+      fav.value = true
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+favor()
 const pointsExpanded = ref({})
 const togglePoint = (pointId) => {
   pointsExpanded.value[pointId] = !pointsExpanded.value[pointId]
@@ -222,6 +235,27 @@ async function SendComment() {
     }
   }
 }
+async function sendExitData() {
+  if (fav.value) {
+    try {
+      const data = await auth_post(`auth/favorites/add?route_id=${routeId}`)
+      console.log(data)
+    } catch (err) {
+      console.log(err)
+    }
+  } else {
+    try {
+      const data = await auth_delete(`auth/favorites/delete?route_id=${routeId}`)
+      console.log(data)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+}
+onBeforeUnmount(() => {
+  sendExitData()
+})
+const fav = ref(false)
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
@@ -296,7 +330,7 @@ async function SendComment() {
                     </div>
                   </div>
                 </div>
-                <div class="grid items-center justify-end">
+                <div class="items-center justify-end flex">
                   <vue3starRatings
                     v-model="mainData.rating"
                     :starSize="38"
@@ -305,6 +339,34 @@ async function SendComment() {
                     :numberOfStars="5"
                     :disableClick="true"
                   />
+                  <div @click="fav = !fav">
+                    <button
+                      v-if="fav === false"
+                      class="bg-indigo-300 text-white rounded-md shadow-md"
+                      style="
+                        padding-right: 0.8vw;
+                        padding-left: 0.8vw;
+                        padding-top: 0.8vw;
+                        padding-bottom: 0.8vw;
+                        margin-left: 0.5vw;
+                      "
+                    >
+                      <img src="/favf.png" class="cursor-pointer" style="height: 1vw" />
+                    </button>
+                    <button
+                      v-if="fav === true"
+                      class="bg-slate-300 text-white rounded-md shadow-md"
+                      style="
+                        padding-right: 0.8vw;
+                        padding-left: 0.8vw;
+                        padding-top: 0.8vw;
+                        padding-bottom: 0.8vw;
+                        margin-left: 0.5vw;
+                      "
+                    >
+                      <img src="/favt.png" class="cursor-pointer" style="height: 1vw" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

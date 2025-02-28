@@ -56,7 +56,7 @@ const handleMouseLeave = () => {
         {{ data.card.description }}
       </h1>
       <img
-        v-if="data.card.status === 'public'"
+        v-if="data.card.status === 'public' || data.card.status == undefined"
         src="/arrow1.svg"
         style="width: 1.6vw; margin-right: 2vw; margin-top: 1.3vw"
         class="absolute right-0"
