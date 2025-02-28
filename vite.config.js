@@ -12,6 +12,13 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
     server: { host: env.HOST, port: env.PORT },
+    build: {
+      rollupOptions: {
+        external: [
+          '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
+        ],
+      },
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
