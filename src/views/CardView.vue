@@ -104,7 +104,6 @@ onMounted(() => {
 
 let user = ref(null)
 let loading = ref(false)
-let ActiveVersion = ref(0)
 const roundedRating = computed({
   get: () => Math.ceil(myRating.value),
   set: (newValue) => {
@@ -207,17 +206,9 @@ const pointsExpanded = ref({})
 const togglePoint = (pointId) => {
   pointsExpanded.value[pointId] = !pointsExpanded.value[pointId]
 }
-
 async function SendComment() {
   if (myRating.value != 0) {
     try {
-      console.log({
-        text: myText.value,
-        rating: Math.ceil(myRating.value),
-        answer: isAnswer.value,
-        route_id: routeId,
-        type: 'public',
-      })
       await auth_post('comments/create', {
         text: myText.value,
         rating: Math.ceil(myRating.value),
@@ -428,89 +419,131 @@ async function SendComment() {
               </div>
             </div>
           </div>
-          <div>
-            <p>Отзывы</p>
-            <div class="mx-10" v-if="canComment">
-              <textarea placeholder="Введите текст" class="w-full" v-model="myText"></textarea>
-              <vue3starRatings
-                v-model="roundedRating"
-                :starSize="32"
-                starColor="#ff9800"
-                inactiveColor="#333333"
-                :numberOfStars="5"
-              />
-              <input type="checkbox" v-model="isAnswer" placeholder="Я прошел маршрут" />
-              <button class="bg-slate-200" @click="SendComment">Оставить отзыв</button>
+          <div class="bg-slate-50 grid" style="padding-bottom: 2vw">
+            <p style="font-size: 1.5vw; margin: 0.5vw 1vw">Отзывы</p>
+            <div style="margin: 1.5vw 1vw; margin-top: 0.5vw" v-if="canComment">
+              <textarea
+                placeholder="Введите текст"
+                class="w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style="min-height: 5vw; font-size: 1.2vw; padding: 0.3vw"
+                v-model="myText"
+              ></textarea>
+              <div class="flex justify-between" style="margin: 0.3vw">
+                <vue3starRatings
+                  v-model="roundedRating"
+                  :starSize="32"
+                  starColor="#ff9800"
+                  inactiveColor="#333333"
+                  :numberOfStars="5"
+                />
+                <div class="flex justify-center">
+                  <input
+                    type="checkbox"
+                    class="custom-checkbox"
+                    id="happy"
+                    name="happy"
+                    value="yes"
+                    v-model="isAnswer"
+                  />
+                  <label for="happy">Я прошел маршрут</label>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <div
+                  class="rounded-lg cursor-pointer text-white bg-indigo-600 active:scale-95 text-center"
+                  @click="SendComment"
+                  style="
+                    padding-bottom: 0.5vw;
+                    padding-top: 0.5vw;
+                    padding-left: 0.8vw;
+                    padding-right: 0.8vw;
+                    font-size: 1.1vw;
+                    transition: transform 0.1s ease;
+                    width: 15vw;
+                  "
+                >
+                  Оставить отзыв
+                </div>
+              </div>
             </div>
             <div>
-              <div v-for="comment in comments" :key="comment.id" class="border-2">
+              <div v-for="comment in comments" :key="comment.id">
                 <div
-                  class="grid-cols-3 grid-rows-1 grid"
-                  style="margin: 1.5vw 0; margin-left: 0.2vw"
+                  class="border-2 rounded-lg border-slate-300"
+                  style="
+                    padding: 1.5vw 0.8vw;
+                    padding-bottom: 0.3vw;
+                    margin: 0.1vw 0.3vw;
+                    margin-bottom: 0.8vw;
+                  "
                 >
-                  <div class="inline-flex">
-                    <a
-                      v-if="comment.user.avatar != null"
-                      href="#"
-                      class="select-none flex cursor-default"
-                      role="menuitem"
-                      tabindex="-1"
-                      id="menu-item-0"
-                      ><img :src="comment.user.avatar" class="rounded-full" style="width: 4vw" />
-                    </a>
-                    <a
-                      v-if="comment.user.avatar == null"
-                      href="#"
-                      class="select-none flex cursor-default"
-                      role="menuitem"
-                      tabindex="-1"
-                      id="menu-item-0"
-                      ><img src="/avatar.jpg" class="rounded-full" style="width: 4vw" />
-                    </a>
-                    <div class="grid-rows-2">
-                      <div style="font-size: 1.5vw; padding: 0 0 0 0.7vw">
-                        {{ comment.user.username }}
+                  <div class="flex justify-between">
+                    <div class="inline-flex">
+                      <a
+                        v-if="comment.user.avatar != null"
+                        href="#"
+                        class="select-none flex cursor-default"
+                        role="menuitem"
+                        tabindex="-1"
+                        id="menu-item-0"
+                        ><img :src="comment.user.avatar" class="rounded-full" style="width: 4vw" />
+                      </a>
+                      <a
+                        v-if="comment.user.avatar == null"
+                        href="#"
+                        class="select-none flex cursor-default"
+                        role="menuitem"
+                        tabindex="-1"
+                        id="menu-item-0"
+                        ><img src="/avatar.jpg" class="rounded-full" style="width: 4vw" />
+                      </a>
+                      <div class="grid-rows-2">
+                        <div style="font-size: 1.5vw; padding: 0 0 0 0.7vw">
+                          {{ comment.user.username }}
+                        </div>
+                        <div
+                          style="font-size: 0.9vw; padding: 0 0 0 0.7vw"
+                          class="text-indigo-700"
+                          v-if="comment.user.role == 'admin' || comment.user.role == 'moderator'"
+                        >
+                          Модератор
+                        </div>
                       </div>
+                    </div>
+                    <div class="justify-end self-center" v-if="comment.type == 'public'">
+                      <vue3starRatings
+                        v-model="comment.rating"
+                        :starSize="32"
+                        starColor="#ff9800"
+                        inactiveColor="#333333"
+                        :numberOfStars="5"
+                        :disableClick="true"
+                      />
                       <div
-                        style="font-size: 0.9vw; padding: 0 0 0 0.7vw"
-                        class="text-indigo-700"
-                        v-if="comment.user.role == 'admin' || comment.user.role == 'moderator'"
+                        v-if="comment.answer"
+                        class="text-right text-slate-600"
+                        style="margin-top: 0.3vw; font-size: 1vw"
                       >
-                        Модератор
+                        Прошел маршрут
                       </div>
                     </div>
                   </div>
-                  <div v-if="comment.answer">Прошел маршрут!</div>
-                  <div v-else></div>
-                  <div class="grid items-center justify-end" v-if="comment.type == 'public'">
-                    <vue3starRatings
-                      v-model="comment.rating"
-                      :starSize="32"
-                      starColor="#ff9800"
-                      inactiveColor="#333333"
-                      :numberOfStars="5"
-                      :disableClick="true"
-                    />
+                  <div
+                    class="border-2 border-slate-300"
+                    style="
+                      font-size: 1.2vw;
+                      border-radius: 5px;
+                      white-space: pre-wrap;
+                      word-wrap: break-word;
+                      background-color: white;
+                      padding: 0vw 0.5vw;
+                      margin-bottom: 0;
+                      margin: 1.5vw 0.3vw;
+                      padding-left: 0.3vw;
+                    "
+                  >
+                    {{ comment.text }}
                   </div>
-                </div>
-                <div
-                  style="
-                    font-size: 1.2vw;
-                    min-height: 6vw;
-                    width: 100%;
-                    overflow: auto;
-                    border: none;
-                    outline: none;
-                    border-radius: 5px;
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    background-color: white;
-                    padding: 0vw 0.5vw;
-                    margin-top: 1vw;
-                    padding-left: 0.3vw;
-                  "
-                >
-                  {{ comment.text }}
                 </div>
               </div>
             </div>
@@ -538,4 +571,42 @@ async function SendComment() {
   opacity: 1; /* Fade in */
   transform: translateY(0); /* Slide to final position */
 }
+.custom-checkbox {
+  z-index: -1;
+  opacity: 0;
+}
+.custom-checkbox + label {
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+}
+.custom-checkbox + label::before {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  flex-grow: 0;
+  border: 1px solid #adb5bd;
+  border-radius: 0.25em;
+  margin-right: 0.5em;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 50% 50%;
+}
+.custom-checkbox:checked + label::before {
+  border-color: #0b76ef;
+  background-color: #0b76ef;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+}
+/* стили при наведении курсора на checkbox */
+.custom-checkbox:not(:disabled):not(:checked) + label:hover::before {
+  border-color: #b3d7ff;
+}
+/* стили для активного состояния чекбокса (при нажатии на него) */
+.custom-checkbox:not(:disabled):active + label::before {
+  background-color: #b3d7ff;
+  border-color: #b3d7ff;
+}
+/* стили для чекбокса, находящегося в фокусе */
 </style>
