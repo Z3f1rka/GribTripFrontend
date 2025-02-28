@@ -172,9 +172,9 @@ async function Save() {
   }
   let image
   if (
-    (mainImage.value != null) &&
-    (imageUrl.value !=
-      import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo)
+    mainImage.value != null &&
+    imageUrl.value !=
+      import.meta.env.VITE_FILES_API_URL + 'files/download/' + mainData.value[0].photo
   ) {
     console.log(mainImage.value)
     console.log(imageUrl.value)
@@ -202,18 +202,13 @@ async function Save() {
 
 async function Public() {
   Save()
-  watch(
-    () => savedone.value,
-    async () => {
-      try {
-        await auth_post(`routes/publication_request?route_id=${routeId}`)
-        let profile = await auth_get(`auth/me`)
-        router.push(`/profile?id=${profile.id}`)
-      } catch (err) {
-        console.log(err)
-      }
-    },
-  )
+  try {
+    await auth_post(`routes/publication_request?route_id=${routeId}`)
+    let profile = await auth_get(`auth/me`)
+    router.push(`/profile?id=${profile.id}`)
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 function AddPoint() {
@@ -414,24 +409,23 @@ function DeletePoint(id) {
               >
                 Отправить
               </div>
-              <router-link :to="{ path: '/versions', query: { id: routeId } }"
-                      >
-              <div
-                class="rounded-lg cursor-pointer text-slate-900 active:scale-95 self-end "
-                style="
-                  padding-bottom: 0.5vw;
-                  padding-top: 0.5vw;
-                  padding-left: 0.8vw;
-                  padding-right: 0.8vw;
-                  margin-left: 1vw;
-                  font-size: 1.1vw;
-                  background-color: #ffff;
-                  transition: transform 0.1s ease;
-                "
-              >
-                Версии
-              </div>
-            </router-link>
+              <router-link :to="{ path: '/versions', query: { id: routeId } }">
+                <div
+                  class="rounded-lg cursor-pointer text-slate-900 active:scale-95 self-end"
+                  style="
+                    padding-bottom: 0.5vw;
+                    padding-top: 0.5vw;
+                    padding-left: 0.8vw;
+                    padding-right: 0.8vw;
+                    margin-left: 1vw;
+                    font-size: 1.1vw;
+                    background-color: #ffff;
+                    transition: transform 0.1s ease;
+                  "
+                >
+                  Версии
+                </div>
+              </router-link>
             </div>
           </div>
           <div
