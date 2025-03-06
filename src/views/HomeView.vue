@@ -139,7 +139,6 @@ onMounted(async () => {
         >
           Создать маршрут
         </div>
-        >
       </div>
     </div>
   </div>

@@ -33,6 +33,7 @@ const myRating = ref(0)
 const isAnswer = ref(false)
 const comments = ref([])
 const canComment = ref(true)
+const userId = ref()
 
 onMounted(() => {
   fetchData()
@@ -175,11 +176,11 @@ const fetchData = async () => {
                 if (data == undefined) {
                   throw undefined
                 }
+                userId.value = me.id
               } catch (err) {
                 console.log(err)
                 canComment.value = false // не работает
               } finally {
-                console.log(me)
                 if (me != undefined) {
                   if (me.id == user.value.id) {
                     canComment.value = false
@@ -229,7 +230,7 @@ async function SendComment() {
         route_id: routeId,
         type: 'public',
       })
-      router.push(`/card?id=${routeId}`)
+      router.go(0)
     } catch (err) {
       console.error(err)
     }
@@ -252,10 +253,51 @@ async function sendExitData() {
     }
   }
 }
+async function DelComment(id) {
+  try {
+    const data = await auth_delete(`comments/delete?comment_id=${id}`)
+    router.go(0)
+  } catch (err) {
+    console.log('удаления нет ->', err)
+  }
+}
 onBeforeUnmount(() => {
   sendExitData()
 })
 const fav = ref(false)
+
+const showDownloadDialog = ref(false)
+const showDownloadOptions = () => {
+  showDownloadDialog.value = true
+}
+const closeDownloadOptions = () => {
+  showDownloadDialog.value = false
+}
+const downroute = async (format) => {
+  try {
+    const response = await auth_get(`routes/export?format=${format}&route_id=${routeId}`)
+    let contentType = 'text/xml'
+    if (format === 'gpx') {
+      contentType = 'application/gpx+xml'
+    } else if (format === 'kml') {
+      contentType = 'application/vnd.google-earth.kml+xml'
+    }
+    const blob = new Blob([response], { type: contentType })
+    const urlObject = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = urlObject
+    link.setAttribute('download', `Маршрут.${format}`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(urlObject)
+
+    closeDownloadOptions()
+  } catch (error) {
+    console.error('Ошибка при скачивании файла:', error)
+    // Добавьте обработку ошибок (например, отображение сообщения пользователю)
+  }
+}
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
@@ -270,7 +312,16 @@ const fav = ref(false)
               class="place-self-center"
             />
             <img v-if="!(mainData || mainData.photo)" src="/avatar.jpg" class="place-self-center" />
+
             <div
+              v-if="showDownloadDialog"
+              style="font-size: 1vw; color: #64748b; padding-right: 0.4vw; padding-top: 0.2vw"
+              class="text-end bg-gray-900 bg-opacity-30"
+            >
+              {{ mainData.created_at.slice(0, 10) }}
+            </div>
+            <div
+              v-else
               style="font-size: 1vw; color: #64748b; padding-right: 0.4vw; padding-top: 0.2vw"
               class="text-end"
             >
@@ -330,42 +381,88 @@ const fav = ref(false)
                     </div>
                   </div>
                 </div>
-                <div class="items-center justify-end flex">
-                  <vue3starRatings
-                    v-model="mainData.rating"
-                    :starSize="38"
-                    starColor="#ff9800"
-                    inactiveColor="#333333"
-                    :numberOfStars="5"
-                    :disableClick="true"
-                  />
-                  <div @click="fav = !fav">
-                    <button
-                      v-if="fav === false"
-                      class="bg-indigo-300 text-white rounded-md shadow-md"
-                      style="
-                        padding-right: 0.8vw;
-                        padding-left: 0.8vw;
-                        padding-top: 0.8vw;
-                        padding-bottom: 0.8vw;
-                        margin-left: 0.5vw;
-                      "
-                    >
-                      <img src="/favf.png" class="cursor-pointer" style="height: 1vw" />
-                    </button>
-                    <button
-                      v-if="fav === true"
-                      class="bg-slate-300 text-white rounded-md shadow-md"
-                      style="
-                        padding-right: 0.8vw;
-                        padding-left: 0.8vw;
-                        padding-top: 0.8vw;
-                        padding-bottom: 0.8vw;
-                        margin-left: 0.5vw;
-                      "
-                    >
-                      <img src="/favt.png" class="cursor-pointer" style="height: 1vw" />
-                    </button>
+                <div class="items-center justify-end inline-flex">
+                  <div>
+                    <vue3starRatings
+                      v-model="mainData.rating"
+                      :starSize="38"
+                      starColor="#ff9800"
+                      inactiveColor="#333333"
+                      :numberOfStars="5"
+                      :disableClick="true"
+                    />
+                  </div>
+                  <button
+                    @click="fav = !fav"
+                    v-if="fav === false"
+                    class="bg-indigo-300 text-white rounded-md shadow-md"
+                    style="
+                      padding-right: 0.8vw;
+                      padding-left: 0.8vw;
+                      padding-top: 0.8vw;
+                      padding-bottom: 0.8vw;
+                      margin-left: 0.5vw;
+                    "
+                  >
+                    <img src="/favf.png" class="cursor-pointer" style="height: 1vw; width: 1vw" />
+                  </button>
+                  <button
+                    @click="fav = !fav"
+                    v-if="fav === true"
+                    class="bg-slate-300 text-white rounded-md shadow-md"
+                    style="
+                      padding-right: 0.8vw;
+                      padding-left: 0.8vw;
+                      padding-top: 0.8vw;
+                      padding-bottom: 0.8vw;
+                      margin-left: 0.5vw;
+                    "
+                  >
+                    <img src="/favt.png" class="cursor-pointer" style="height: 1vw; width: 1vw" />
+                  </button>
+                  <button
+                    class="bg-slate-300 text-white rounded-md shadow-md"
+                    style="
+                      padding-right: 0.8vw;
+                      padding-left: 0.8vw;
+                      padding-top: 0.8vw;
+                      padding-bottom: 0.8vw;
+                      margin-left: 0.5vw;
+                    "
+                    @click="showDownloadOptions"
+                  >
+                    <img src="/down.png" class="cursor-pointer" style="height: 1vw" />
+                  </button>
+                  <div
+                    v-if="showDownloadDialog"
+                    class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-30 flex items-center justify-center"
+                  >
+                    <div class="bg-white rounded-md p-4">
+                      <p style="margin-bottom: 0.5vw; font-size: 1.1vw">
+                        Выберите формат файла для скачивания:
+                      </p>
+                      <button
+                        @click="downroute('gpx')"
+                        class="bg-green-500 text-white rounded-md"
+                        style="padding: 0.5vw 1vw; margin-right: 0.5vw; font-size: 1.1vw"
+                      >
+                        GPX
+                      </button>
+                      <button
+                        @click="downroute('kml')"
+                        class="bg-blue-500 text-white rounded-md"
+                        style="padding: 0.5vw 1vw; margin-right: 0.5vw; font-size: 1.1vw"
+                      >
+                        KML
+                      </button>
+                      <button
+                        @click="closeDownloadOptions"
+                        class="bg-red-500 text-white rounded-md"
+                        style="padding: 0.5vw 1vw; margin-right: 0.5vw; font-size: 1.1vw"
+                      >
+                        Отмена
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -590,7 +687,45 @@ const fav = ref(false)
                       </div>
                     </div>
                   </div>
+                  <div v-if="comment.user.id === userId">
+                    <div
+                      class="border-2 border-slate-300"
+                      style="
+                        font-size: 1.2vw;
+                        border-radius: 5px;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        background-color: white;
+                        padding: 0vw 0.5vw;
+                        margin: 1.5vw 0.3vw;
+                        margin-bottom: 0.8vw;
+                        padding-left: 0.3vw;
+                      "
+                    >
+                      {{ comment.text }}
+                    </div>
+                    <div class="flex justify-end">
+                      <div
+                        class="rounded-lg cursor-pointer text-slate-100 active:scale-95"
+                        style="
+                          padding-bottom: 0.5vw;
+                          padding-top: 0.5vw;
+                          padding-left: 0.8vw;
+                          padding-right: 0.8vw;
+                          margin-bottom: 0.8vw;
+                          margin-right: 0.3vw;
+                          font-size: 1.1vw;
+                          background-color: crimson;
+                          transition: transform 0.1s ease;
+                        "
+                        @click="DelComment(comment.id)"
+                      >
+                        Удалить
+                      </div>
+                    </div>
+                  </div>
                   <div
+                    v-else
                     class="border-2 border-slate-300"
                     style="
                       font-size: 1.2vw;

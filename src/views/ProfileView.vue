@@ -333,49 +333,10 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <div
-              v-if="loadingM && Active === 0"
-              style="
-                margin-right: 1vw;
-                margin-left: 0.3vw;
-                margin-bottom: 3vw;
-                transition: 0.3s ease;
-              "
-            >
-              <div class="text-white inline-grid grid-cols-2">
-                <div v-for="item in selfcards.array" :key="item.id">
-                  <div>
-                    <router-link :to="{ path: '/create_route', query: { id: item.main_route_id } }">
-                      <Card :card="item" style="border-width: 1px; border-color: white"></Card>
-                    </router-link>
-                  </div>
-                </div>
-              </div>
-              <div v-if="rulefive" class="flex justify-center" style="margin-top: 2vw">
-                <router-link :to="{ path: '/my_routes', query: { id: id } }"
-                  ><div
-                    class="items-center rounded-lg text-center hover:bg-white hover:text-black text-white active:scale-95"
-                    style="
-                      margin-top: 1vw;
-                      padding-left: 1vw;
-                      padding-right: 1vw;
-                      padding-top: 0.7vw;
-                      padding-bottom: 0.7vw;
-                      font-size: 1vw;
-                      border-width: 1px;
-                      transition: 0.3s ease;
-                    "
-                  >
-                    Все маршруты
-                  </div>
-                </router-link>
-              </div>
-            </div>
             <transition name="fade" mode="out-in">
               <div key="transition-wrapper" style="transition: 0.3s ease; margin-bottom: auto">
                 <div
-                  v-if="loadingH && Active === 2"
-                  class="text-white flex justify-center items-center flex-wrap content-box"
+                  v-if="loadingM && Active === 0"
                   style="
                     margin-right: 1vw;
                     margin-left: 0.3vw;
@@ -383,12 +344,54 @@ onMounted(() => {
                     transition: 0.3s ease;
                   "
                 >
-                  <div v-for="item in historycards.array" :key="item.id">
-                    <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
-                      <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                  <div class="text-white inline-grid grid-cols-2">
+                    <div v-for="item in selfcards.array" :key="item.id">
+                      <div>
+                        <router-link
+                          :to="{ path: '/create_route', query: { id: item.main_route_id } }"
+                        >
+                          <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                        </router-link>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="rulefive" class="flex justify-center" style="margin-top: 2vw">
+                    <router-link :to="{ path: '/my_routes', query: { id: id } }"
+                      ><div
+                        class="items-center rounded-lg text-center hover:bg-white hover:text-black text-white active:scale-95"
+                        style="
+                          margin-top: 1vw;
+                          padding-left: 1vw;
+                          padding-right: 1vw;
+                          padding-top: 0.7vw;
+                          padding-bottom: 0.7vw;
+                          font-size: 1vw;
+                          border-width: 1px;
+                          transition: 0.3s ease;
+                        "
+                      >
+                        Все маршруты
+                      </div>
                     </router-link>
                   </div>
-                  <div v-if="rulefiveH" class="flex container justify-center">
+                </div>
+                <div
+                  v-if="loadingH && Active === 2"
+                  style="
+                    margin-right: 1vw;
+                    margin-left: 0.3vw;
+                    margin-bottom: 3vw;
+                    transition: 0.3s ease;
+                  "
+                >
+                  <div class="text-white inline-grid grid-cols-2">
+                    <div v-for="item in historycards.array" :key="item.id">
+                      <router-link :to="{ path: '/card', query: { id: item.main_route_id } }">
+                        <Card :card="item" style="border-width: 1px; border-color: white"></Card>
+                      </router-link>
+                    </div>
+                  </div>
+                  <div v-if="rulefiveH" class="flex justify-center" style="margin-top: 2vw">
                     <router-link :to="{ path: '/history', query: { id: item.user_id } }"
                       ><div
                         class="items-center rounded-lg text-center hover:bg-white hover:text-black"
@@ -410,7 +413,6 @@ onMounted(() => {
                 </div>
                 <div
                   v-if="loadingF && Active === 1"
-                  class="text-white flex justify-center items-center flex-wrap content-box"
                   style="
                     margin-right: 1vw;
                     margin-left: 0.3vw;

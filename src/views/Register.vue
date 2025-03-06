@@ -23,7 +23,7 @@ const submitHandler = async (data) => {
     }
   } catch (error) {
     console.error('Ошибка при регистрации:', error)
-    formErrors.value = { general: 'Ошибка при регистрации. Попробуйте позже.' }
+    formErrors.value = { general: error.response.data.detail }
   }
 }
 </script>

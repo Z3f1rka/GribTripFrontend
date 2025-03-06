@@ -4,7 +4,7 @@ import Header from '@/components/Header/Header.vue'
 import 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 import '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
 import '/lrm-graphhopper-1.2.0.js'
-import { auth_get, auth_post } from '@/request'
+import { auth_delete, auth_get, auth_post } from '@/request'
 import router from '../router'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -314,8 +314,49 @@ function DeletePoint(id) {
   }
   ReRoute()
 }
-// До этой наверное
-// По странице сам поймешь
+async function DelRoute() {
+  try {
+    const data = await auth_delete(`routes/delete_route?route_id=${routeId}`)
+    let profile = await auth_get(`auth/me`)
+    router.push(`/profile?id=${profile.id}`)
+    alert('Маршрут удален')
+  } catch (err) {
+    console.log('удаления нет ->', err)
+  }
+}
+
+const showDownloadDialog = ref(false)
+const showDownloadOptions = () => {
+  showDownloadDialog.value = true
+}
+const closeDownloadOptions = () => {
+  showDownloadDialog.value = false
+}
+const downroute = async (format) => {
+  try {
+    const response = await auth_get(`routes/export?format=${format}&route_id=${routeId}`)
+    let contentType = 'text/xml'
+    if (format === 'gpx') {
+      contentType = 'application/gpx+xml'
+    } else if (format === 'kml') {
+      contentType = 'application/vnd.google-earth.kml+xml'
+    }
+    const blob = new Blob([response], { type: contentType })
+    const urlObject = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = urlObject
+    link.setAttribute('download', `Маршрут.${format}`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(urlObject)
+
+    closeDownloadOptions()
+  } catch (error) {
+    console.error('Ошибка при скачивании файла:', error)
+    // Добавьте обработку ошибок (например, отображение сообщения пользователю)
+  }
+}
 </script>
 
 <template>
@@ -426,6 +467,67 @@ function DeletePoint(id) {
                   Версии
                 </div>
               </router-link>
+              <button
+                class="bg-slate-50 text-white rounded-md shadow-sm"
+                style="
+                  padding-right: 0.8vw;
+                  padding-left: 0.8vw;
+                  padding-top: 0.8vw;
+                  padding-bottom: 0.8vw;
+                  margin-left: 0.5vw;
+                "
+                @click="showDownloadOptions"
+              >
+                <img src="/down.png" class="cursor-pointer" style="height: 1vw" />
+              </button>
+              <div
+                v-if="showDownloadDialog"
+                class="fixed top-0 left-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-30"
+                style="width: 38.6vw; height: 100%"
+              >
+                <div class="bg-white rounded-md p-4">
+                  <p style="margin-bottom: 0.5vw; font-size: 1.1vw">
+                    Выберите формат файла для скачивания:
+                  </p>
+                  <button
+                    @click="downroute('gpx')"
+                    class="bg-green-500 text-white rounded-md"
+                    style="padding: 0.5vw 1vw; margin-right: 0.5vw; font-size: 1.1vw"
+                  >
+                    GPX
+                  </button>
+                  <button
+                    @click="downroute('kml')"
+                    class="bg-blue-500 text-white rounded-md"
+                    style="padding: 0.5vw 1vw; margin-right: 0.5vw; font-size: 1.1vw"
+                  >
+                    KML
+                  </button>
+                  <button
+                    @click="closeDownloadOptions"
+                    class="bg-red-500 text-white rounded-md"
+                    style="padding: 0.5vw 1vw; margin-right: 0.5vw; font-size: 1.1vw"
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </div>
+              <div
+                class="rounded-lg cursor-pointer text-slate-100 active:scale-95 self-end"
+                style="
+                  padding-bottom: 0.5vw;
+                  padding-top: 0.5vw;
+                  padding-left: 0.8vw;
+                  padding-right: 0.8vw;
+                  margin-left: 6vw;
+                  font-size: 1.1vw;
+                  background-color: crimson;
+                  transition: transform 0.1s ease;
+                "
+                @click="DelRoute"
+              >
+                Удалить
+              </div>
             </div>
           </div>
           <div
@@ -557,7 +659,7 @@ function DeletePoint(id) {
                       <div
                         v-for="image in point.images"
                         :key="image.fileUrl"
-                        class="image-container"
+                        class="image-container z-0"
                       >
                         <img :src="image.fileUrl" class="image-item" />
 
