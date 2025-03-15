@@ -74,8 +74,8 @@ onMounted(() => {
         </router-link>
       </header>
       <div
-        class="absolute modal"
-        style="right: 0; background-color: #fffaf4"
+        class="absolute modal bg-slate-100"
+        style="right: 0"
         :class="{ EnterDropRight: isOpen, LeaveDropRight: !isOpen }"
       >
         <div

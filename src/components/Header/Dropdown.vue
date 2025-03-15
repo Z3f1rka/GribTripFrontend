@@ -15,12 +15,12 @@ let data = defineProps({
 </script>
 <template>
   <div
-    class="absolute right-0 z-10 origin-top-right select-none focus:outline-none"
+    class="absolute right-0 z-10 origin-top-right select-none focus:outline-none bg-slate-100"
     role="menu"
     aria-orientation="vertical"
     aria-labelledby="menu-button"
     tabindex="-1"
-    style="background-color: #fffaf4; width: 21vw"
+    style="width: 21vw"
   >
     <div role="none" style="padding-top: 0.3vw">
       <a

@@ -7,8 +7,6 @@ import { useRouter, useRoute } from 'vue-router'
 
 const id = useRoute()['query']['id']
 
-const gradientStartColor = computed(() => '#080E1A')
-
 let Active = ref(0)
 const router = useRouter()
 let user = ref(null)
@@ -21,8 +19,7 @@ let historycards = reactive({
   search: '',
   array: [],
 })
-const mainImage = ref(null)
-const loading = ref(false)
+
 const imageUrl = ref('')
 
 if (localStorage.getItem('refresh_token') == null) {
@@ -37,8 +34,8 @@ async function f() {
     if (data == undefined) {
       throw undefined
     }
-    if (user.value.photo != undefined && user.value.photo != null && user.value.photo != '') {
-      imageUrl.value = import.meta.env.VITE_FILES_API_URL + 'files/download/' + user.value.photo
+    if (user.value.avatar != undefined && user.value.avatar != null && user.value.avatar != '') {
+      imageUrl.value = user.value.avatar
     }
   } catch (err) {
     console.log(err)
@@ -51,33 +48,6 @@ watch(
   () => user.value,
   () => {
     auth.value = true
-  },
-)
-
-async function AddImage(event) {
-  loading.value = false
-  mainImage.value = event.target.files[0]
-  console.log(mainImage)
-  if (
-    mainImage.value != null &&
-    imageUrl.value != import.meta.env.VITE_FILES_API_URL + 'files/download/' + user.value.photo
-  ) {
-    let formData = new FormData()
-    formData.append('file', mainImage.value)
-    imageUrl.value = await auth_post(
-      'files/upload',
-      formData,
-      import.meta.env.VITE_FILES_API_URL,
-      'multipart/form-data',
-    )
-    await auth_post('auth/update', { avatar: imageUrl.value })
-    imageUrl.value = import.meta.env.VITE_FILES_API_URL + 'files/download/' + imageUrl.value
-  }
-}
-watch(
-  () => imageUrl.value,
-  () => {
-    loading.value = true
   },
 )
 
@@ -163,7 +133,6 @@ async function NewRoute() {
     console.log(err)
   }
 }
-
 onMounted(() => {
   fetchData()
 })
@@ -173,6 +142,40 @@ onMounted(() => {
 onMounted(() => {
   fetchDataI()
 })
+const fileInput = ref(null)
+
+const uploadAvatar = () => {
+  fileInput.value.click()
+}
+const handleFileUpload = async (event) => {
+  const file = ref()
+  file.value = event.target.files[0]
+  const formData = new FormData()
+  formData.append('file', file.value)
+  try {
+    const image = await auth_post(
+      'files/upload',
+      formData,
+      import.meta.env.VITE_FILES_API_URL,
+      'multipart/form-data',
+    )
+    try {
+      imageUrl.value =
+        import.meta.env.VITE_FILES_API_URL +
+        'files/download/' +
+        encodeURIComponent(image).replace('(', '%28').replace(')', '%29')
+      console.log(imageUrl)
+      const prof = await auth_post(`auth/update`, {
+        avatar: imageUrl.value,
+      })
+      router.go(0)
+    } catch (err) {
+      console.log(err)
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
 </script>
 <template>
   <div class="min-h-screen flex flex-col overflow-hidden">
@@ -202,7 +205,7 @@ onMounted(() => {
             margin-right: 4vw;
           "
         >
-          <div class="grid col-span-1 justify-center text-center">
+          <div class="grid col-span-1 justify-center text-center" @click="uploadAvatar">
             <img
               v-if="user && user.avatar"
               :src="imageUrl"
@@ -215,7 +218,15 @@ onMounted(() => {
               class="rounded-lg"
               style="width: 12vw"
             />
+            <input
+              type="file"
+              ref="fileInput"
+              style="display: none"
+              @change="handleFileUpload"
+              accept="image/*"
+            />
           </div>
+
           <div class="col-span-4 flex justify-between">
             <div class="text-left grid">
               <div style="font-size: 4vw">
