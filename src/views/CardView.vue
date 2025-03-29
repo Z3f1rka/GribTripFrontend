@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, computed, onBeforeUnmount } from 'vue'
-import { auth_get, auth_post, auth_delete } from '@/request'
+import api from '@/request'
 import vue3starRatings from 'vue3-star-ratings'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
@@ -10,11 +10,10 @@ import '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
 import '/lrm-graphhopper-1.2.0.js'
 import router from '../router'
 import { useRoute } from 'vue-router'
-import { tr } from '@formkit/i18n'
 
 const routeId = useRoute()['query']['id']
 const mapContainer = ref()
-let api = import.meta.env.VITE_FILES_API_URL
+let api1 = import.meta.env.VITE_FILES_API_URL
 const api_key = import.meta.env.VITE_GRAPHHOPPER_API_KEY
 const map = ref()
 const control = ref()
@@ -116,14 +115,14 @@ const roundedRating = computed({
 const fetchData = async () => {
   loading.value = false
   try {
-    mainData.value = await auth_get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
+    mainData.value = await api.get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
     if (mainData.value == undefined) {
       throw undefined
     }
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
     try {
-      mainData.value = await auth_get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
+      mainData.value = await api.get(`routes/get_by_main_route_id_public?route_id=${routeId}`)
       if (mainData.value == undefined) {
         throw undefined
       }
@@ -133,7 +132,7 @@ const fetchData = async () => {
   } finally {
     async function f() {
       try {
-        const data = await auth_get(`auth/user?user_id=${mainData.value.user_id}`)
+        const data = await api.get(`auth/user?user_id=${mainData.value.user_id}`)
         user.value = data
         if (data == undefined) {
           throw undefined
@@ -150,7 +149,7 @@ const fetchData = async () => {
       () => {
         async function f1() {
           try {
-            const data1 = await auth_get(
+            const data1 = await api.get(
               `comments/get_all_route_public_comments?route_id=${routeId}`,
             )
             comments.value = data1
@@ -171,7 +170,7 @@ const fetchData = async () => {
               let ids = []
               let me = undefined
               try {
-                const data = await auth_get('auth/me')
+                const data = await api.get('auth/me')
                 me = data
                 if (data == undefined) {
                   throw undefined
@@ -206,7 +205,7 @@ const fetchData = async () => {
 }
 async function favor() {
   try {
-    const data = await auth_get(`auth/favorites/fetch/other?user_id=${routeId}`)
+    const data = await api.get(`auth/favorites/fetch/other?user_id=${routeId}`)
     console.log(data.length)
     if (data.length != 0) {
       fav.value = true
@@ -223,7 +222,7 @@ const togglePoint = (pointId) => {
 async function SendComment() {
   if (myRating.value != 0) {
     try {
-      await auth_post('comments/create', {
+      await api.post('comments/create', {
         text: myText.value,
         rating: Math.ceil(myRating.value),
         answer: isAnswer.value,
@@ -239,14 +238,14 @@ async function SendComment() {
 async function sendExitData() {
   if (fav.value) {
     try {
-      const data = await auth_post(`auth/favorites/add?route_id=${routeId}`)
+      const data = await api.post(`auth/favorites/add?route_id=${routeId}`)
       console.log(data)
     } catch (err) {
       console.log(err)
     }
   } else {
     try {
-      const data = await auth_delete(`auth/favorites/delete?route_id=${routeId}`)
+      const data = await api.delete(`auth/favorites/delete?route_id=${routeId}`)
       console.log(data)
     } catch (err) {
       console.log(err)
@@ -255,7 +254,7 @@ async function sendExitData() {
 }
 async function DelComment(id) {
   try {
-    const data = await auth_delete(`comments/delete?comment_id=${id}`)
+    const data = await api.delete(`comments/delete?comment_id=${id}`)
     router.go(0)
   } catch (err) {
     console.log('удаления нет ->', err)
@@ -275,7 +274,7 @@ const closeDownloadOptions = () => {
 }
 const downroute = async (format) => {
   try {
-    const response = await auth_get(`routes/export?format=${format}&route_id=${routeId}`)
+    const response = await api.get(`routes/export?format=${format}&route_id=${routeId}`)
     let contentType = 'text/xml'
     if (format === 'gpx') {
       contentType = 'application/gpx+xml'
@@ -308,7 +307,7 @@ const downroute = async (format) => {
           <div class="overflow-hidden bg-slate-200">
             <img
               v-if="mainData || mainData.photo"
-              :src="api + 'files/download/' + mainData.photo"
+              :src="api1 + 'files/download/' + mainData.photo"
               class="place-self-center"
             />
             <img v-if="!(mainData || mainData.photo)" src="/avatar.jpg" class="place-self-center" />

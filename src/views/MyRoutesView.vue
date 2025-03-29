@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, reactive } from 'vue'
-import { auth_get } from '@/request'
+import api from '@/request'
 import Card from '@/components/Main/Card.vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -36,14 +36,14 @@ const fetchData = async () => {
   loading.value = false
 
   try {
-    selfcards.array = await auth_get(`routes/all_user_routes?user_id=${id}`)
+    selfcards.array = await api.get(`routes/all_user_routes?user_id=${id}`)
     if (selfcards.array == undefined) {
       throw undefined
     }
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
     try {
-      selfcards.array = await auth_get(`routes/all_user_public_routes?user_id=${id}`)
+      selfcards.array = await api.get(`routes/all_user_public_routes?user_id=${id}`)
       if (selfcards.array == undefined) {
         throw undefined
       }

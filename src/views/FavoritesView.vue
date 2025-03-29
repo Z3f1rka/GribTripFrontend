@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, reactive } from 'vue'
-import { auth_get } from '@/request'
+import api from '@/request'
 import Card from '@/components/Main/Card.vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -32,7 +32,7 @@ watch(
 
 async function f() {
   try {
-    const data = await auth_get(`auth/favorites/fetch/other?user_id=${id}`)
+    const data = await api.get(`auth/favorites/fetch/other?user_id=${id}`)
     selfcards.array = data
   } catch (error) {
     console.error('Ошибка при загрузке данных пользователя:', error)

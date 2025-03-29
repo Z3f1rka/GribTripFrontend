@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import Dropdown from './Dropdown.vue'
-import { auth_get } from '@/request'
+import api from '@/request'
 
 let data1 = defineProps({
   scroll: Boolean,
@@ -13,7 +13,7 @@ let auth = ref(false)
 
 async function f() {
   try {
-    const data = await auth_get('auth/me')
+    const data = await api.get('auth/me')
     user.value = data
     if (data == undefined) {
       throw undefined

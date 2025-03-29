@@ -2,7 +2,8 @@
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, reactive, computed } from 'vue'
 import Card from '@/components/Main/Card.vue'
-import { auth_get, auth_post } from '@/request'
+import api from '@/request'
+import api_photo from '@/request_photo'
 import { useRouter, useRoute } from 'vue-router'
 
 const id = useRoute()['query']['id']
@@ -29,7 +30,7 @@ if (localStorage.getItem('refresh_token') == null) {
 
 async function f() {
   try {
-    const data = await auth_get(`auth/user?user_id=${id}`)
+    const data = await api.get(`auth/user?user_id=${id}`)
     user.value = data
     if (data == undefined) {
       throw undefined
@@ -60,14 +61,14 @@ const fetchData = async () => {
   loadingM.value = false
 
   try {
-    selfcards.array = await auth_get(`routes/all_user_routes?user_id=${id}`)
+    selfcards.array = await api.get(`routes/all_user_routes?user_id=${id}`)
     if (selfcards.array == undefined) {
       throw undefined
     }
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
     try {
-      selfcards.array = await auth_get(`routes/all_user_public_routes?user_id=${id}`)
+      selfcards.array = await api.get(`routes/all_user_public_routes?user_id=${id}`)
       if (selfcards.array == undefined) {
         throw undefined
       }
@@ -85,7 +86,7 @@ const fetchData = async () => {
 const fetchDataH = async () => {
   loadingH.value = false
   try {
-    historycards.array = await auth_get(`history/routes/other_user?user_id=${id}`)
+    historycards.array = await api.get(`history/routes/other_user?user_id=${id}`)
     if (historycards.array == undefined) {
       throw undefined
     }
@@ -110,7 +111,7 @@ const favoritescards = reactive({
 const fetchDataI = async () => {
   loadingF.value = false
   try {
-    favoritescards.array = await auth_get(`auth/favorites/fetch/other?user_id=${id}`)
+    favoritescards.array = await api.get(`auth/favorites/fetch/other?user_id=${id}`)
     if (favoritescards.array == undefined) {
       throw undefined
     }
@@ -126,7 +127,7 @@ const fetchDataI = async () => {
 }
 async function NewRoute() {
   try {
-    const newid = await auth_post(`routes/create`, { title: 'Новый маршрут' })
+    const newid = await api.post(`routes/create`, { title: 'Новый маршрут' })
     console.log(newid)
     router.push(`/create_route?id=${newid}`)
   } catch (err) {
@@ -153,19 +154,14 @@ const handleFileUpload = async (event) => {
   const formData = new FormData()
   formData.append('file', file.value)
   try {
-    const image = await auth_post(
-      'files/upload',
-      formData,
-      import.meta.env.VITE_FILES_API_URL,
-      'multipart/form-data',
-    )
+    const image = await api_photo.post('files/upload', formData)
     try {
       imageUrl.value =
         import.meta.env.VITE_FILES_API_URL +
         'files/download/' +
         encodeURIComponent(image).replace('(', '%28').replace(')', '%29')
       console.log(imageUrl)
-      const prof = await auth_post(`auth/update`, {
+      const prof = await api.post(`auth/update`, {
         avatar: imageUrl.value,
       })
       router.go(0)

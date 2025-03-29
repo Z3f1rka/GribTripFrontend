@@ -1,9 +1,9 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
-import { ref, watch, onMounted, reactive } from 'vue'
-import { auth_get } from '@/request'
+import { watch, onMounted, reactive } from 'vue'
+import api from '@/request'
 import Card from '@/components/Main/Card.vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const id = useRoute()['query']['id']
 
@@ -32,7 +32,7 @@ watch(
 
 async function f() {
   try {
-    const data = await auth_get('admin/get_publication_requests')
+    const data = await api.get('admin/get_publication_requests')
     selfcards.array = data
   } catch (error) {
     console.error('Ошибка при загрузке данных', error)

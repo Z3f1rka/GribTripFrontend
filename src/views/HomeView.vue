@@ -1,9 +1,9 @@
 <script setup>
 import { computed, ref, reactive, watch, onMounted } from 'vue'
-import { auth_get, auth_post } from '../request.js'
+import api from '@/request'
 import Header from '@/components/Header/Header.vue'
 import Card from '@/components/Main/Card.vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const state = reactive({
@@ -15,7 +15,7 @@ const gradientStartColor = computed(() => '#080E1A')
 
 async function loadRoutes() {
   try {
-    const data = await auth_get('routes/all_public_routes')
+    const data = await api.get('routes/all_public_routes')
     state.array = data
   } catch (error) {
     state.array = []
@@ -24,8 +24,7 @@ async function loadRoutes() {
 
 async function NewRoute() {
   try {
-    const newid = await auth_post(`routes/create`, { title: 'Новый маршрут' })
-    console.log(newid)
+    const newid = await api.post(`routes/create`, { title: 'Новый маршрут' })
     router.push(`/create_route?id=${newid}`)
   } catch (err) {
     console.log(err)

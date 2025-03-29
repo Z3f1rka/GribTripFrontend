@@ -4,9 +4,10 @@ import Header from '@/components/Header/Header.vue'
 import 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 import '/leaflet-routing-machine-3.2.12/dist/leaflet-routing-machine.js'
 import '/lrm-graphhopper-1.2.0.js'
-import { auth_delete, auth_get, auth_post } from '@/request'
+import api from '@/request'
+import api_photo from '@/request_photo'
 import router from '../router'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 // В комментах указания для создания из этого страницы отображения и (!) то что тут + добавь хедер и получение айди из адреса
 const routeId = useRoute()['query']['id']
@@ -121,7 +122,7 @@ var is_add = ref(false) // не нужно
 
 async function fetchData() {
   try {
-    let data = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
+    let data = await api.get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
     if (data == undefined || data[0].status == 'check') {
       throw undefined
     }
@@ -152,14 +153,7 @@ async function Save() {
         }
       })
       if (formData.has('files')) {
-        data.push(
-          ...(await auth_post(
-            'files/upload_list_files',
-            formData,
-            import.meta.env.VITE_FILES_API_URL,
-            'multipart/form-data',
-          )),
-        )
+        data.push(...(await api_photo.post('files/upload_list_files', formData)))
       }
     }
     content_blocks.push({
@@ -180,12 +174,7 @@ async function Save() {
     console.log(imageUrl.value)
     let formData = new FormData()
     formData.append('file', mainImage.value)
-    image = await auth_post(
-      'files/upload',
-      formData,
-      import.meta.env.VITE_FILES_API_URL,
-      'multipart/form-data',
-    )
+    image = await api_photo.post('files/upload', formData)
   } else {
     image = imageUrl.value.slice((import.meta.env.VITE_FILES_API_URL + 'files/download/').length)
   }
@@ -196,15 +185,15 @@ async function Save() {
     photo: image,
     main_route_id: routeId,
   }
-  auth_post('routes/update', data)
+  api.post('routes/update', data)
   savedone.value = true
 }
 
 async function Public() {
   Save()
   try {
-    await auth_post(`routes/publication_request?route_id=${routeId}`)
-    let profile = await auth_get(`auth/me`)
+    await api.post(`routes/publication_request?route_id=${routeId}`)
+    let profile = await api.get(`auth/me`)
     router.push(`/profile?id=${profile.id}`)
   } catch (err) {
     console.log(err)
@@ -316,8 +305,8 @@ function DeletePoint(id) {
 }
 async function DelRoute() {
   try {
-    const data = await auth_delete(`routes/delete_route?route_id=${routeId}`)
-    let profile = await auth_get(`auth/me`)
+    const data = await api.delete(`routes/delete_route?route_id=${routeId}`)
+    let profile = await api.get(`auth/me`)
     router.push(`/profile?id=${profile.id}`)
     alert('Маршрут удален')
   } catch (err) {
@@ -334,7 +323,7 @@ const closeDownloadOptions = () => {
 }
 const downroute = async (format) => {
   try {
-    const response = await auth_get(`routes/export?format=${format}&route_id=${routeId}`)
+    const response = await api.get(`routes/export?format=${format}&route_id=${routeId}`)
     let contentType = 'text/xml'
     if (format === 'gpx') {
       contentType = 'application/gpx+xml'
@@ -478,7 +467,11 @@ const downroute = async (format) => {
                 "
                 @click="showDownloadOptions"
               >
-                <img src="/down.png" class="cursor-pointer" style="height: 1vw" />
+                <img
+                  src="/down.png"
+                  class="cursor-pointer"
+                  style="height: 1vw; object-fit: cover"
+                />
               </button>
               <div
                 v-if="showDownloadDialog"
@@ -539,7 +532,7 @@ const downroute = async (format) => {
             <div class="border-b border-slate-500">
               <div class="bg-slate-300 border-slate-400" style="padding-bottom: 3vw">
                 <div>
-                  <div class="inline-flex active:scale-95" style="transition: transform 0.1s ease">
+                  <div class="inline-flex">
                     <input
                       v-model="point.title"
                       placeholder="Введите название точки"

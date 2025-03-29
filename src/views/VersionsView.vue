@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header/Header.vue'
 import { ref, watch, onMounted, computed } from 'vue'
-import { auth_get, auth_post } from '@/request'
+import api from '@/request'
 import vue3starRatings from 'vue3-star-ratings'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
@@ -13,7 +13,6 @@ import { useRoute } from 'vue-router'
 
 const routeId = useRoute()['query']['id']
 const mapContainer = ref()
-let api = import.meta.env.VITE_FILES_API_URL
 const api_key = import.meta.env.VITE_GRAPHHOPPER_API_KEY
 const map = ref()
 const control = ref()
@@ -124,14 +123,14 @@ const fetchData = async () => {
   loading.value = false
   try {
     console.log(routeId)
-    mainData.value = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
+    mainData.value = await api.get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
     if (mainData.value == undefined) {
       throw undefined
     }
   } catch (err) {
     console.error('Ошибка при запросе к первичному эндпоинту:', err)
     try {
-      mainData.value = await auth_get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
+      mainData.value = await api.get(`routes/get_by_main_route_id_private?route_id=${routeId}`)
       if (mainData.value == undefined) {
         throw undefined
       }
@@ -142,7 +141,7 @@ const fetchData = async () => {
     async function f() {
       try {
         console.log(mainData.value[activeId.value])
-        const data = await auth_get(`auth/user?user_id=${mainData.value[activeId.value].user_id}`)
+        const data = await api.get(`auth/user?user_id=${mainData.value[activeId.value].user_id}`)
         user.value = data
         if (data == undefined) {
           throw undefined
@@ -159,7 +158,7 @@ const fetchData = async () => {
       () => {
         async function f1() {
           try {
-            const data1 = await auth_get(
+            const data1 = await api.get(
               `comments/get_all_route_public_comments?route_id=${routeId}`,
             )
             comments.value = data1
@@ -180,7 +179,7 @@ const fetchData = async () => {
               let ids = []
               let me = undefined
               try {
-                const data = await auth_get('auth/me')
+                const data = await api.get('auth/me')
                 me = data
                 if (data == undefined) {
                   throw undefined
